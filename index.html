@@ -520,8 +520,6 @@ h4.fs{margin:6px 0 0;font-size:13px;font-weight:700;letter-spacing:.04em;color:v
 .map-grid select{font:inherit;font-size:14px;font-weight:400;padding:7px 10px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--text);width:100%}
 @media (max-width:900px){ .row3,.map-grid{grid-template-columns:1fr 1fr} .kpi.act{grid-template-columns:1fr 1fr} }
 @media (max-width:640px){ .row3,.map-grid{grid-template-columns:1fr} .act-bar .src{margin-inline-start:0} }
-.notice.warn-note{border-inline-start:4px solid var(--warn);background:#fdf7e6}
-select.mini{font:inherit;font-size:13.5px;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--text)}
 </style>
 </head>
 <body>
@@ -2602,18 +2600,14 @@ function renderTracking(mode){
     $("#fs").hidden = filt.tab === "act";
     if(filt.tab === "users") return;
     $("#trkList").innerHTML = filt.tab === "kpi" ? kpiListHTML(!!admin) : filt.tab === "act" ? actListHTML(!!admin) : progListHTML(!!admin);
-    if(filt.tab === "act"){
+    if(filt.tab === "act" && admin){
       const b = (id, fn) => { const el2 = $("#"+id); if(el2) el2.addEventListener("click", fn); };
-      b("actMore", () => { actPage += 60; paint(); });
-      if(admin){
-        b("actNew", () => openActEditor(null)); b("actImp", openImport); b("actExp", exportActions); b("actTpl", downloadTemplate); b("actSeed", importSeed);
-        const wf = $("#actWf"); if(wf) wf.addEventListener("change", e => { actWf = e.target.value; actPage = 60; paint(); });
-      }
+      b("actNew", () => openActEditor(null)); b("actImp", openImport); b("actExp", exportActions); b("actTpl", downloadTemplate);
     }
   };
-  $("#fg").addEventListener("change", e => { filt.g = e.target.value; actPage = 60; paint(); });
+  $("#fg").addEventListener("change", e => { filt.g = e.target.value; paint(); });
   $("#fs").addEventListener("change", e => { filt.s = e.target.value; paint(); });
-  $("#fq").addEventListener("input", e => { filt.q = e.target.value.trim(); actPage = 60; paint(); });
+  $("#fq").addEventListener("input", e => { filt.q = e.target.value.trim(); paint(); });
   $("#trkTabs").addEventListener("click", e => { const b = e.target.closest(".tab"); if(!b) return; filt.tab = b.dataset.t; document.querySelectorAll("#trkTabs .tab").forEach(t=>t.setAttribute("aria-selected", t===b?"true":"false")); paint(); if(filt.tab === "users") renderUsers(); });
   if(admin){
     $("#trkList").addEventListener("click", e => {
@@ -2831,11 +2825,7 @@ ar:{tab:"الإجراءات التنفيذية", title:"الإجراءات ال�
   impXlsxErr:"تعذر قراءة ملف xlsx (يحتاج اتصالاً بالإنترنت لتحميل قارئ الملفات). احفظ الورقة بصيغة CSV ثم أعد المحاولة.",
   impNoFile:"اختر ملفاً أولاً.", impNoRows:"لم يُعثر على صفوف بيانات تحت صف العناوين المحدد.",
   wTarget:n=>`${n} صفاً بمستهدف غير رقمي`, wUnit:n=>`${n} صفاً بوحدة قياس غير معروفة (ستُسجَّل «أخرى»)`, wDup:n=>`${n} عنوان إجراء مكرر`, wNoComp:n=>`${n} صفاً بلا مكون`,
-  fSectorOpts:{ge:"التعليم العام", tv:"التعليم التقني والمهني", he:"التعليم العالي"},
-  more:"عرض المزيد", shown:(a,b)=>`المعروض ${a} من ${b}`, wfAll:"كل حالات الاعتماد",
-  seed:"استيراد بيانات الوزارتين", seedAsk:n=>`سيتم استيراد ${n} إجراءً من استمارتي وزارة التربية ووزارة التعليم العالي كمسودات. المتابعة؟`,
-  seedGoing:"جارٍ الاستيراد… قد يستغرق دقيقة.", seedDone:n=>`تم استيراد ${n} إجراءً كمسودات.`, seedErr:"تعذر الاستيراد.",
-  preview:"وضع المعاينة: هذه بيانات أولية مستوردة من استمارتي الوزارتين ولم تُراجَع أو تُعتمد بعد، ولم تُحفظ في قاعدة البيانات."},
+  fSectorOpts:{ge:"التعليم العام", tv:"التعليم التقني والمهني", he:"التعليم العالي"}},
 en:{tab:"Executive actions", title:"Executive actions", none:"No actions recorded yet.", noneAdmin:"No actions yet. Add one manually or import a ministry template from Excel.",
   add:"New action", imp:"Import from Excel", exp:"Export CSV", tpl:"Download template", edit:"Edit", del:"Delete", delAsk:"Delete this action permanently?",
   secDef:"Action definition", secMeas:"Measurement and link to the strategy", secFin:"Financing", secPer:"Periodic update", secWf:"Verification and approval",
@@ -2860,11 +2850,7 @@ en:{tab:"Executive actions", title:"Executive actions", none:"No actions recorde
   impXlsxErr:"Could not read the xlsx file (the reader needs an internet connection). Save the sheet as CSV and try again.",
   impNoFile:"Choose a file first.", impNoRows:"No data rows were found under the chosen header row.",
   wTarget:n=>`${n} row(s) with a non-numeric target`, wUnit:n=>`${n} row(s) with an unknown unit (stored as “Other”)`, wDup:n=>`${n} duplicate action title(s)`, wNoComp:n=>`${n} row(s) without a component`,
-  fSectorOpts:{ge:"General education", tv:"TVET", he:"Higher education"},
-  more:"Show more", shown:(a,b)=>`Showing ${a} of ${b}`, wfAll:"All approval states",
-  seed:"Import the ministry data", seedAsk:n=>`This will import ${n} actions from the MoE and MoHESR templates as drafts. Continue?`,
-  seedGoing:"Importing… this may take a minute.", seedDone:n=>`Imported ${n} actions as drafts.`, seedErr:"Import failed.",
-  preview:"Preview mode: initial data imported from the two ministry templates, not yet reviewed, approved or saved to the database."},
+  fSectorOpts:{ge:"General education", tv:"TVET", he:"Higher education"}},
 ckb:{tab:"کردارە جێبەجێکارییەکان", title:"کردارە جێبەجێکارییەکان", none:"هێشتا هیچ کردارێک تۆمار نەکراوە.", noneAdmin:"هێشتا هیچ کردارێک نییە. کردارێک بە دەستی زیاد بکە یان لە فایلی Excel هاوردە بکە.",
   add:"کرداری نوێ", imp:"هاوردە لە Excel", exp:"هەناردەی CSV", tpl:"داگرتنی قاڵب", edit:"دەستکاری", del:"سڕینەوە", delAsk:"ئەم کردارە بە تەواوی بسڕدرێتەوە؟",
   secDef:"پێناسەی کردار", secMeas:"پێوانە و بەستنەوە بە ستراتیژییەت", secFin:"دارایی", secPer:"نوێکردنەوەی دەوری", secWf:"پشتڕاستکردنەوە و پەسەندکردن",
@@ -2889,63 +2875,21 @@ ckb:{tab:"کردارە جێبەجێکارییەکان", title:"کردارە جێ
   impXlsxErr:"نەتوانرا فایلی xlsx بخوێنرێتەوە. پەڕەکە وەک CSV پاشەکەوت بکە و دووبارە هەوڵ بدەرەوە.",
   impNoFile:"سەرەتا فایلێک هەڵبژێرە.", impNoRows:"هیچ ڕیزێکی داتا نەدۆزرایەوە.",
   wTarget:n=>`${n} ڕیز بە ئامانجی ناژمارەیی`, wUnit:n=>`${n} ڕیز بە یەکەی نەناسراو`, wDup:n=>`${n} ناونیشانی دووبارە`, wNoComp:n=>`${n} ڕیز بێ پێکهاتە`,
-  fSectorOpts:{ge:"پەروەردەی گشتی", tv:"پەروەردە و ڕاهێنانی پیشەیی", he:"خوێندنی باڵا"},
-  more:"زیاتر پیشان بدە", shown:(a,b)=>`${a} لە ${b} پیشان دراوە`, wfAll:"هەموو دۆخەکانی پەسەندکردن",
-  seed:"هاوردەی داتای وەزارەتەکان", seedAsk:n=>`${n} کردار لە فۆرمەکانی وەزارەتەکانەوە وەک ڕەشنووس هاوردە دەکرێن. بەردەوام بیت؟`,
-  seedGoing:"هاوردەکردن… لەوانەیە خولەکێک بخایەنێت.", seedDone:n=>`${n} کردار وەک ڕەشنووس هاوردە کرا.`, seedErr:"هاوردە سەرکەوتوو نەبوو.",
-  preview:"دۆخی پێشبینین: داتای سەرەتایی لە فۆرمی دوو وەزارەتەوە، هێشتا پێداچوونەوە و پەسەندکردنی بۆ نەکراوە و لە بنکەدراوە پاشەکەوت نەکراوە."}
+  fSectorOpts:{ge:"پەروەردەی گشتی", tv:"پەروەردە و ڕاهێنانی پیشەیی", he:"خوێندنی باڵا"}}
 };
 const AC = () => AC_I18N[lang] || AC_I18N.ar;
 
-let actPage = 60, actWf = "all";
-let actions = {}, actionsLoaded = false, actionsDate = "", actionsPreview = false, seedCount = 0;
+let actions = {}, actionsLoaded = false, actionsDate = "";
 async function loadActions(force){
   if(actionsLoaded && !force) return;
-  let apiOk = false, apiCount = 0;
   try{
     const r = await fetch("api/actions", {cache:"no-store", credentials:"same-origin"});
     if(r.ok && (r.headers.get("content-type")||"").includes("json")){
       const j = await r.json();
-      if(j && j.items){ actions = j.items; actionsDate = j.exportedAt || ""; apiOk = true; apiCount = Object.keys(j.items).length; }
+      if(j && j.items){ actions = j.items; actionsDate = j.exportedAt || ""; }
     }
   }catch(e){}
-  actionsPreview = false;
-  // the bundled file is the initial ministry import: shown only while the API is unavailable,
-  // and offered to signed-in users as a one-click seed while the database is still empty
-  if(!apiOk || (session && apiCount === 0)){
-    try{
-      const r2 = await fetch("data/actions.json", {cache:"no-store"});
-      if(r2.ok){
-        const j2 = await r2.json();
-        if(j2 && j2.items && Object.keys(j2.items).length){
-          seedCount = Object.keys(j2.items).length;
-          if(!apiOk){ actions = j2.items; actionsDate = j2.exportedAt || ""; actionsPreview = true; }
-        }
-      }
-    }catch(e){}
-  }
-  if(apiOk && apiCount > 0) seedCount = 0;
   actionsLoaded = true; notify();
-}
-async function importSeed(){
-  const T = AC(); const btn = $("#actSeed"); if(btn) btn.disabled = true;
-  let store = null;
-  try{ const r = await fetch("data/actions.json", {cache:"no-store"}); store = await r.json(); }catch(e){}
-  if(!store || !store.items){ alert(T.seedErr); if(btn) btn.disabled = false; return; }
-  const items = Object.values(store.items).map(x => { const y = {...x}; delete y.id; delete y.createdAt; delete y.updatedAt; delete y.by; delete y.user; delete y.createdBy; return y; });
-  if(!confirm(T.seedAsk(items.length))){ if(btn) btn.disabled = false; return; }
-  if(btn) btn.textContent = T.seedGoing;
-  let added = 0;
-  try{
-    for(let i = 0; i < items.length; i += 250){
-      const r = await api("actions/import", {method:"POST", body:{items: items.slice(i, i+250)}});
-      if(!r.ok){ alert(r.status === 401 ? A().expired : T.seedErr); if(btn){ btn.disabled = false; btn.textContent = T.seed; } return; }
-      added += r.data.added || 0;
-    }
-  }catch(e){ alert(T.seedErr); if(btn){ btn.disabled = false; btn.textContent = T.seed; } return; }
-  actionsPreview = false;
-  await loadActions(true);
-  alert(T.seedDone(added));
 }
 const actList = () => Object.values(actions).sort((a,b) => (a.sector||"").localeCompare(b.sector||"") || String(a.title||"").localeCompare(String(b.title||"")));
 function actProgress(a){
@@ -2969,25 +2913,20 @@ function actSummaryHTML(){
   </div><p class="src">${AC().sum.note}</p>`;
 }
 function actListHTML(canEdit){
-  const all = actList().filter(a => {
+  const rows = actList().filter(a => {
     if(filt.g !== "all" && filt.g !== "fn" && a.sector !== filt.g) return false;
-    if(canEdit && actWf !== "all" && (a.workflow||"draft") !== actWf) return false;
-    if(filt.q){ const t = `${a.title} ${a.component} ${a.program} ${a.implementer} ${a.indicator} ${a.ref||""}`.toLowerCase(); if(!t.includes(filt.q.toLowerCase())) return false; }
+    if(filt.q){ const t = `${a.title} ${a.component} ${a.program} ${a.implementer} ${a.indicator}`.toLowerCase(); if(!t.includes(filt.q.toLowerCase())) return false; }
     return true;
   });
-  const rows = all.slice(0, actPage);
   const bar = canEdit ? `<div class="act-bar">
       <button class="btn primary sm" id="actNew" type="button">${AC().add}</button>
       <button class="btn sm" id="actImp" type="button">${AC().imp}</button>
       <button class="btn sm" id="actExp" type="button">${AC().exp}</button>
       <button class="btn sm" id="actTpl" type="button">${AC().tpl}</button>
-      <select id="actWf" class="mini"><option value="all">${AC().wfAll}</option>${WF_ST.map(k=>`<option value="${k}" ${actWf===k?"selected":""}>${AC().wf[k]}</option>`).join("")}</select>
-      ${seedCount ? `<button class="btn sm primary" id="actSeed" type="button">${AC().seed} (${fmt(seedCount)})</button>` : ""}
       <span class="src">${AC().onlyApproved}</span>
     </div>` : "";
-  const pv = actionsPreview ? `<div class="notice warn-note">${AC().preview}</div>` : "";
-  if(!rows.length) return bar + pv + `<div class="notice">${canEdit ? AC().noneAdmin : AC().none}</div>`;
-  return bar + pv + actSummaryHTML() + `<p class="src">${AC().shown(rows.length, all.length)}</p><div class="kpis acts">${rows.map(a => {
+  if(!rows.length) return bar + `<div class="notice">${canEdit ? AC().noneAdmin : AC().none}</div>`;
+  return bar + actSummaryHTML() + `<div class="kpis acts">${rows.map(a => {
     const p = actProgress(a); const per = (a.periods||[])[ (a.periods||[]).length - 1 ];
     return `<div class="kpi act">
       <div class="name"><b>${esc(a.title)}</b><small>${C.groups[a.sector]||""}${a.component?` · ${esc(a.component)}`:""}${a.implementer?` · ${esc(a.implementer)}`:""}</small></div>
@@ -2996,7 +2935,7 @@ function actListHTML(canEdit){
       <div class="cell"><div class="pill-wrap">${actPill(a.status)} ${canEdit?wfPill(a.workflow):""}</div>${p!==null?`<div class="bar"><i style="width:${p}%"></i></div><small class="num">${p}%</small>`:""}</div>
       <div>${canEdit?`<button class="btn sm" data-act-edit="${esc(a.id)}">${AC().edit}</button>`:""}</div>
       ${a.kpi && kpiMeta(a.kpi) ? `<div class="note act-kpi">${AC().fKpi}: <b>${kpiMeta(a.kpi).t}</b></div>` : ""}
-    </div>`; }).join("")}</div>${all.length > rows.length ? `<p style="text-align:center;margin-top:16px"><button class="btn" id="actMore" type="button">${AC().more}</button></p>` : ""}`;
+    </div>`; }).join("")}</div>`;
 }
 
 /* ---------- editor ---------- */
