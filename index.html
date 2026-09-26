@@ -431,13 +431,42 @@ html[dir="ltr"] .sign{align-items:flex-end}
 @media (max-width:640px){ .top .wrap{justify-content:space-between} .nav{margin-inline-start:0;width:100%} .langs{order:2} }
 .kpi.prog-row.editable{grid-template-columns:minmax(0,3fr) minmax(0,1.3fr) auto}
 .nav a.nav-admin{opacity:.85}
+
+/* logo slots */
+.brand-wrap{display:flex;align-items:center;gap:12px}
+#brandLogo img{height:46px;width:auto;display:block}
+.logobar{display:flex;flex-direction:column;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:18px;border-start-start-radius:0;padding:20px 24px;margin-top:8px}
+.logogroup{display:grid;grid-template-columns:auto 1fr;gap:8px 18px;align-items:center}
+.logogroup + .logogroup{border-top:1px solid var(--line);padding-top:14px}
+.logolabel{font-size:12.5px;font-weight:700;letter-spacing:.04em;color:var(--sage);white-space:nowrap}
+.logos{display:flex;align-items:center;justify-content:space-evenly;gap:26px;row-gap:16px;flex-wrap:wrap}
+.logo img{height:66px;width:auto;max-width:190px;object-fit:contain;display:block}
+.logo-unesco img,.logo-unicef img,.logo-wb img{height:54px;max-width:170px}
+.logo-eu img{height:46px;max-width:120px}
+@media (max-width:900px){ .logogroup{grid-template-columns:1fr} .logos{gap:20px;justify-content:center} .logo img{height:52px;max-width:150px} .logo-unesco img,.logo-unicef img,.logo-wb img{height:44px;max-width:130px} .logo-eu img{height:38px;max-width:100px} }
+@media (max-width:640px){ .logobar{padding:14px 16px;gap:12px} .logos{gap:16px} .logo img{height:44px;max-width:110px} .logo-unesco img,.logo-unicef img,.logo-wb img{height:36px;max-width:104px} .logo-eu img{height:32px;max-width:84px} #brandLogo img{height:34px} }
+
+/* theory of change narrative */
+.toc-narr{font-size:15px;line-height:1.85;color:var(--text);background:var(--lime-2);border-radius:14px;border-start-start-radius:0;padding:12px 16px}
+.toc-narr .ifthen{display:block;font-size:12.5px;font-weight:700;letter-spacing:.04em;color:var(--sage);margin-bottom:4px}
+/* downloads + reader */
+.dl-card{flex-wrap:wrap}
+.dl-actions{margin-inline-start:auto;display:flex;gap:8px;flex-wrap:wrap}
+.dl-count{color:var(--sage);font-weight:600;font-size:13px}
+.reader-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.reader-bar .tab{text-decoration:none}
+.reader-actions{display:flex;gap:8px}
+.reader{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--surface);height:min(78vh,900px)}
+.reader object,.reader iframe{width:100%;height:100%;border:0;display:block;background:var(--bg)}
+.reader-fb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;height:100%;padding:32px;text-align:center;color:var(--muted);font-size:15px;line-height:1.8}
+@media (max-width:640px){ .reader{height:70vh} .dl-actions{width:100%} }
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
     <div class="wrap">
-      <a class="brand" href="#/"><b id="brandT"></b><span id="brandS"></span></a>
+      <div class="brand-wrap"><span id="brandLogo" hidden></span><a class="brand" href="#/"><b id="brandT"></b><span id="brandS"></span></a></div>
       <nav class="nav" id="nav" aria-label="Main"></nav>
       <div class="langs" id="langs" role="group" aria-label="Language">
         <button type="button" data-l="ar" lang="ar">عربي</button>
@@ -1969,6 +1998,73 @@ document.getElementById("langs").addEventListener("click", e => {
   applyLang(); route(true);
 });
 
+/* ---------- added UI strings, theory-of-change narratives ---------- */
+const EX_I18N = {
+  ar:{tocLabel:"نظرية التغيير", ifThen:"إذا … فإن …", viewOnline:"استعراض أونلاين", openTab:"فتح في تبويب جديد",
+      readTitle:"استعراض الاستراتيجية", readSub:"تصفّح الوثيقة كاملة داخل الموقع، أو حمّلها بصيغة PDF.",
+      dlCount:n => n === 1 ? "تحميل واحد" : n === 2 ? "تحميلان" : `${n} تحميل`, dlCountZero:"لم يُسجَّل تحميل بعد",
+      pdfFallback:"إذا لم يظهر الملف في المتصفح، استخدم زر التحميل أو افتحه في تبويب جديد."},
+  en:{tocLabel:"Theory of change", ifThen:"If … then …", viewOnline:"Read online", openTab:"Open in a new tab",
+      readTitle:"Read the strategy", readSub:"Browse the full document inside the site, or download the PDF.",
+      dlCount:n => `${n} download${n === 1 ? "" : "s"}`, dlCountZero:"No downloads recorded yet",
+      pdfFallback:"If the file does not display in your browser, use the download button or open it in a new tab."},
+  ckb:{tocLabel:"تیۆریی گۆڕان", ifThen:"ئەگەر … ئەوا …", viewOnline:"خوێندنەوە لە ئۆنلاین", openTab:"کردنەوە لە تابێکی نوێ",
+      readTitle:"خوێندنەوەی ستراتیژی", readSub:"بەڵگەنامەکە بە تەواوی لە ناو ماڵپەڕەکەدا بخوێنەرەوە، یان وەک PDF دایبگرە.",
+      dlCount:n => `${n} داگرتن`, dlCountZero:"هێشتا هیچ داگرتنێک تۆمار نەکراوە",
+      pdfFallback:"ئەگەر فایلەکە لە وێبگەڕەکەتدا دەرنەکەوت، دوگمەی داگرتن بەکاربهێنە یان لە تابێکی نوێدا بیکەرەوە."}
+};
+const X = () => EX_I18N[lang] || EX_I18N.ar;
+const TOC_TEXT = {
+ ar:{ge:[
+  "إذا توسعت الأبنية المدرسية لاستيعاب الأعداد المتزايدة وتقليل الدوام المزدوج، وحصل الأطفال والشباب على بيئة تعليمية آمنة وصحية وعلى فرص تعلم مرنة، فإن التحاق المتعلمين واستبقاءهم سيزدادان في رياض الأطفال والابتدائي والثانوي والتعليم غير النظامي، ولا سيما الفتيات والمتأثرين بالنزاع والنزوح وذوي الاحتياجات الخاصة والطلبة الفقراء.",
+  "إذا وفّرت المدارس بيئة جاذبة للتعلم، وحُدّثت المناهج وأساليب التقييم، وتعززت القيادة المدرسية والمشاركة المجتمعية عبر الإدارة المستندة إلى المدرسة، فإن استعداد تلاميذ الابتدائي سيتحسن، وترتفع نتائج التعليم والتعلم في الابتدائي والثانوي، وتنخفض معدلات الرسوب والتسرب.",
+  "إذا تعززت قدرات الكوادر في التخطيط والرصد والتقييم والتنسيق والإدارة، وقدرات الإدارة المالية، وحصلت المدارس على أموال تشغيلية لتنفيذ خطط تحسينها، وامتلكت الإدارات المركزية واللامركزية أدوات التخطيط للأزمات، وتعززت الشراكة مع القطاع الخاص، فإن القدرات التشريعية والإدارية والتخطيطية والمالية للنظام التعليمي ستتعزز لضمان خدمات فعالة وكفوءة.",
+  "إذا استقطبت بيئة التدريس معلمين مؤهلين ومتحفزين واحتفظت بهم، وارتفعت مؤهلاتهم عبر التدريب قبل الخدمة وأثناءها، ووُظّفت الكوادر غير التدريسية ودُرّبت وفق الحاجة، فإن معلمين وكوادر مؤهلين ومتحفزين سيضمنون تعليماً جيداً وتقديم خدمات تعليمية فعالة وكفوءة."],
+  tv:[
+  "إذا قُدّم الإرشاد والتوجيه المهني القائم على احتياجات سوق العمل، وزاد وعي المجتمعات بأهمية التعليم المهني، وتوفرت مسارات مرنة للفتيات والشباب خارج المدرسة وذوي الاحتياجات الخاصة والمعرضين للتسرب، فإن الطلب والالتحاق ببرامج التعليم والتدريب التقني والمهني سيزدادان، ويصبح أحد أفضل الخيارات للشباب.",
+  "إذا تحسنت البنية التحتية للتعليم المهني، وتعزز الإطار المؤسسي بمعايير مهنية للمعلمين والمدربين والمشرفين ضمن إطار جودة معتمد، ورفع المدربون قدراتهم عبر التطوير المهني أثناء الخدمة، فإن كفاءة المؤسسات التعليمية والتدريبية والتقنية وفعاليتها سترتفعان، وتنخفض معدلات الرسوب والتسرب.",
+  "إذا تحسنت جودة المواد والمناهج وأساليب التقييم والبحث العلمي الداعم لتطوير القطاع، وارتفعت مهارات المدربين والكوادر وفق معايير الجودة، وقويت الروابط مع سوق العمل بربط المخرجات باحتياجاته، فإن جودة البرامج وملاءمتها ستتحسنان، وترتفع نتائج التعلم وقابلية توظيف الخريجين.",
+  "إذا تحسن الإطار المؤسسي لتقديم برامج عالية الجودة، وتعززت قدرات التخطيط الاستراتيجي والتشغيلي وإدارة المعلومات، وأصبحت الإدارة المالية أكثر فعالية بتخصيصات في وقتها وفق الخطط ومصادر تمويل متنوعة، فإن أطر الحوكمة والتمويل والإدارة ستتحسن وتضمن تنسيقاً أفضل ومخصصات أكبر للقطاع."],
+  he:[
+  "إذا أُنشئت مؤسسات تعليم عالٍ أكثر بأنماط وبرامج متنوعة، وأُصلحت سياسات القبول، فإن الوصول والكفاءة الداخلية سيتحسنان، مع قدرة استيعابية أكبر لكل راغب ومؤهل.",
+  "إذا ارتقت كفاءات الباحثين ومهاراتهم لرفع إنتاجيتهم، وتوفر تمويل البحث للنشر في مجلات رصينة مع حماية الملكية الفكرية للجامعات، ووجد العلماء العراقيون بيئة بحثية جاذبة تدفعهم إلى العودة، فإن بحثاً عالي الجودة سيُنتج ويقود إلى الابتكار والتنمية الاقتصادية.",
+  "إذا حصل عدد أكبر من المؤسسات على الاعتماد الأكاديمي الوطني والدولي لضمان الجودة ورفع فعالية خدماتها، وشاركت الجامعات العراقية في التصنيفات الدولية وحققت مواقع متقدمة، فإن التعليم العالي سيحقق نتائج تعلم أفضل.",
+  "إذا تحسنت منظومة الحوكمة والتمويل في مؤسسات التعليم العالي، وأشركت الجامعات جميع أصحاب المصلحة، فإن المؤسسات ستتمكن من تحقيق أهدافها بكفاءة وفعالية.",
+  "إذا أقامت المؤسسات شراكات راسخة مع الصناعة، ودمج التدريسيون التطورات العالمية في تدريسهم، وأصبح الخريجون أقدر على الاستجابة لاحتياجات سوق العمل والمجتمع، فإن قابلية توظيف خريجي التعليم العالي سترتفع."]},
+ en:{ge:[
+  "If school infrastructure expands to accommodate rising numbers and reduce multiple shifts, and if children and youth have a safe and healthy learning environment and flexible learning opportunities, then enrolment and retention will increase in pre-primary, primary, secondary and non-formal education — especially among girls, learners affected by conflict and displacement, students with special needs and poor students.",
+  "If schools provide an attractive environment conducive to learning, if curricula and assessment methods are updated, and if school leadership and community participation are strengthened through school-based management, then pupils at primary level will be better prepared, teaching and learning outcomes will improve, and repetition and dropout will fall.",
+  "If staff capacities for planning, M&E, coordination and administration are strengthened, if financial management capacities improve, if schools have operational funds for their improvement plans, if central and decentralised authorities have tools to plan for and respond to crises, and if partnerships with the private sector are strengthened, then the legislative, administrative, planning and financial capacity of the system will be strengthened for effective and efficient service delivery.",
+  "If the teaching environment attracts and retains qualified, motivated teachers, if teacher qualifications improve through pre- and in-service training, and if non-teaching staff are recruited and trained based on needs, then qualified and motivated teachers and education staff will ensure quality education and effective, efficient service delivery."],
+  tv:[
+  "If career guidance and orientation based on labour market needs is provided, if communities become more aware of the value of TVET, and if girls, out-of-school youth, learners with special needs and those at risk of dropping out have flexible pathways, then demand for and enrolment in TVET will increase, making it one of the best options for young people.",
+  "If TVET infrastructure is improved, if the institutional framework is strengthened with professional standards for teachers, trainers and supervisors within an approved quality framework, and if trainers build their capacities through in-service development, then efficiency and effectiveness in educational, training and technical institutions will increase and repetition and dropout will fall.",
+  "If the quality of teaching and learning materials, curricula, assessment methods and supporting research improves, if trainers and staff have stronger competencies under quality standards, and if links with the labour market connect TVET outputs to its needs, then the quality and relevance of TVET programmes will improve, strengthening learning outcomes and graduate employability.",
+  "If the institutional framework for delivering quality TVET improves, if strategic and operational planning and information management are strengthened, and if financial management becomes more effective with timely, needs-based allocations and a diversified funding portfolio, then governance, financing and management frameworks will improve and ensure better coordination and higher allocations."],
+  he:[
+  "If more higher education institutions are established with diverse types and programmes, and if admission policies are reformed, then greater access and internal efficiency will be achieved, with enrolment capacity for all who are eligible and willing.",
+  "If researchers' competencies and skills are upgraded to raise their productivity, if research funding supports publication in reputable journals while protecting universities' intellectual property, and if Iraqi scientists find an attractive research environment that brings them back, then high-quality research will be produced, leading to innovation and economic development.",
+  "If more institutions obtain national and international academic accreditation to assure quality and increase the effectiveness of their services, and if Iraqi universities enter international rankings and achieve advanced positions, then higher education will produce better learning outcomes.",
+  "If the governance and finance system of higher education institutions is improved, and if universities engage all stakeholders, then institutions will be able to achieve their goals efficiently and effectively.",
+  "If institutions build solid partnerships with industry, if academic staff integrate global advances into their teaching, and if graduates respond better to labour market and societal needs, then the employability of higher education graduates will rise."]},
+ ckb:{ge:[
+  "ئەگەر بینای قوتابخانەکان فراوان بکرێت بۆ وەرگرتنی ژمارەی زیادبوو و کەمکردنەوەی دەوامی دووانی، و ئەگەر منداڵان و گەنجان ژینگەیەکی سەلامەت و تەندروست و دەرفەتی فێربوونی نەرمیان هەبێت، ئەوا وەرگرتن و مانەوەی فێرخوازان لە باخچەی ساوایان و سەرەتایی و ناوەندی و پەروەردەی نافەرمیدا زیاد دەکات، بە تایبەتی کچان و کاریگەربووان بە ململانێ و ئاوارەبوون و خاوەن پێداویستیی تایبەت و قوتابیانی هەژار.",
+  "ئەگەر قوتابخانەکان ژینگەیەکی سەرنجڕاکێشی فێربوون دابین بکەن، و پرۆگرام و شێوازەکانی هەڵسەنگاندن نوێ بکرێنەوە، و سەرکردایەتیی قوتابخانە و بەشداریی کۆمەڵگە بەهێز بکرێت لە ڕێگەی بەڕێوەبردنی پشتبەستوو بە قوتابخانە، ئەوا ئامادەیی قوتابیانی سەرەتایی باشتر دەبێت، ئەنجامەکانی فێرکردن و فێربوون بەرز دەبنەوە، و ڕێژەی دووبارەکردنەوە و وازهێنان کەم دەبێتەوە.",
+  "ئەگەر توانای کارمەندان لە پلاندانان و چاودێری و هەڵسەنگاندن و هەماهەنگی و بەڕێوەبردن بەهێز بکرێت، و توانای بەڕێوەبردنی دارایی باشتر بێت، و قوتابخانەکان پارەی کارپێکردنیان بۆ پلانی باشترکردن هەبێت، و دامەزراوە ناوەندی و نامەرکەزییەکان ئامرازی پلاندانان بۆ قەیرانیان هەبێت، و هاوبەشی لەگەڵ کەرتی تایبەت بەهێز بێت، ئەوا توانای یاسایی و کارگێڕی و پلاندانان و داراییی سیستەمی پەروەردە بەهێز دەبێت بۆ خزمەتگوزاریی کارا.",
+  "ئەگەر ژینگەی وانەوتنەوە مامۆستای شیاو و هاندراو ڕابکێشێت و بیانهێڵێتەوە، و شیاوییان بە ڕاهێنانی پێش خزمەت و لە کاتی خزمەتدا بەرز ببێتەوە، و کارمەندانی ناوانەبێژ بەپێی پێداویستی دابمەزرێن و ڕاهێنان بکرێن، ئەوا مامۆستا و کارمەندانی شیاو و هاندراو پەروەردەیەکی باش و خزمەتگوزاریی کارا دڵنیا دەکەنەوە."],
+  tv:[
+  "ئەگەر ڕێنمایی و ئاراستەکردنی پیشەیی لەسەر بنەمای پێداویستیی بازاڕی کار دابین بکرێت، و هۆشیاریی کۆمەڵگە بە گرنگیی پەروەردەی پیشەیی زیاد بکات، و ڕێڕەوی نەرم بۆ کچان و گەنجانی دەرەوەی قوتابخانە و خاوەن پێداویستیی تایبەت هەبێت، ئەوا داواکاری و وەرگرتن لە پەروەردەی تەکنیکی و پیشەییدا زیاد دەکات و دەبێتە یەکێک لە باشترین بژاردەکان بۆ گەنجان.",
+  "ئەگەر ژێرخانی پەروەردەی پیشەیی باشتر بکرێت، و چوارچێوەی دامەزراوەیی بە ستانداردی پیشەیی بۆ مامۆستا و ڕاهێنەر و سەرپەرشتیاران لە چوارچێوەی کوالیتیی پەسەندکراودا بەهێز بێت، و ڕاهێنەران بە پەرەپێدانی پیشەیی لە کاتی خزمەتدا توانایان بەرز بکەنەوە، ئەوا کارایی و بەرهەمداریی دامەزراوەکان بەرز دەبێتەوە و دووبارەکردنەوە و وازهێنان کەم دەبێتەوە.",
+  "ئەگەر کوالیتیی کەرەستە و پرۆگرام و شێوازەکانی هەڵسەنگاندن و توێژینەوەی پاڵپشت باشتر بێت، و کارامەیی ڕاهێنەران و کارمەندان بەپێی ستانداردەکانی کوالیتی بەرز ببێتەوە، و پەیوەندی لەگەڵ بازاڕی کار بەهێز بێت بە بەستنەوەی دەرچووان بە پێداویستییەکانی، ئەوا کوالیتی و گونجانی بەرنامەکان باشتر دەبێت و ئەنجامی فێربوون و دەرفەتی کاری دەرچووان بەرز دەبێتەوە.",
+  "ئەگەر چوارچێوەی دامەزراوەیی بۆ پێشکەشکردنی بەرنامەی کوالیتی بەرز باشتر بێت، و توانای پلاندانانی ستراتیژی و کارپێکردن و بەڕێوەبردنی زانیاری بەهێز بێت، و بەڕێوەبردنی دارایی کاراتر بێت بە تەرخانکردنی لەکاتی خۆی و سەرچاوەی فرەچەشن، ئەوا چوارچێوەکانی حوکمڕانی و دارایی و بەڕێوەبردن باشتر دەبن و هەماهەنگیی باشتر و تەرخانکردنی زیاتر دڵنیا دەکەن."],
+  he:[
+  "ئەگەر دامەزراوەی زیاتری خوێندنی باڵا بە شێواز و بەرنامەی جۆراوجۆر دابمەزرێت، و سیاسەتەکانی وەرگرتن چاکسازی بکرێن، ئەوا گەیشتن و کارایی ناوخۆیی باشتر دەبێت، لەگەڵ توانای وەرگرتنی گەورەتر بۆ هەموو شیاوێک.",
+  "ئەگەر کارامەیی توێژەران بەرز ببێتەوە بۆ زیادکردنی بەرهەمداریان، و داراییی توێژینەوە بۆ بڵاوکردنەوە لە گۆڤارە بەهێزەکان دابین بکرێت لەگەڵ پاراستنی موڵکی هزریی زانکۆکان، و زانا عێراقییەکان ژینگەیەکی توێژینەوەیی ڕاکێشەریان بۆ بگەڕێتەوە هەبێت، ئەوا توێژینەوەی کوالیتی بەرز بەرهەم دێت و دەبێتە هۆی داهێنان و گەشەی ئابووری.",
+  "ئەگەر ژمارەیەکی زیاتری دامەزراوەکان متمانەپێدانی ئەکادیمیی نیشتمانی و نێودەوڵەتی وەربگرن بۆ دڵنیایی کوالیتی، و زانکۆ عێراقییەکان بچنە ناو پۆلێنبەندییە نێودەوڵەتییەکان و پلەی باش بەدەست بهێنن، ئەوا خوێندنی باڵا ئەنجامی فێربوونی باشتر بەرهەم دەهێنێت.",
+  "ئەگەر سیستەمی حوکمڕانی و داراییی دامەزراوەکانی خوێندنی باڵا باشتر بێت، و زانکۆکان هەموو لایەنە پەیوەندیدارەکان بەشدار بکەن، ئەوا دامەزراوەکان دەتوانن بە کارایی ئامانجەکانیان بەدی بهێنن.",
+  "ئەگەر دامەزراوەکان هاوبەشیی بەهێز لەگەڵ پیشەسازی دروست بکەن، و مامۆستایان پێشکەوتنە جیهانییەکان لە وانەکانیاندا بخەنە کار، و دەرچووان باشتر وەڵامی پێداویستیی بازاڕی کار و کۆمەڵگە بدەنەوە، ئەوا دەرفەتی کاری دەرچووانی خوێندنی باڵا بەرز دەبێتەوە."]}
+};
+
 /* ---------- fixed structure (ids shared by all languages) ---------- */
 const SECTORS = ["ge","tv","he"];
 const PROG_IDS = {
@@ -2052,6 +2148,38 @@ const ICONS = {
 };
 const icon = (name, cls="") => `<span class="ic ${cls}" aria-hidden="true"><svg viewBox="0 0 48 48">${ICONS[name]||""}</svg></span>`;
 
+
+/* ---------- logo slots (files are dropped into assets/logos/) ---------- */
+const LOGO_SETS = {
+  prepared:[["iraq","iraq.png"],["pmac","pmac.png"],["hced","hced.png"],["moe","moe.png"],["mohesr","mohesr.png"],["mop","mop.png"],["mof","mof.png"]],
+  support:[["unesco","unesco.png"],["unicef","unicef.png"],["wb","worldbank.png"],["eu","eu.png"]]
+};
+const LOGO_I18N = {
+  ar:{prepared:"إعداد وإشراف", support:"بدعم من", names:{iraq:"جمهورية العراق", pmac:"هيئة المستشارين – رئاسة مجلس الوزراء", hced:"اللجنة العليا لتطوير التعليم في العراق", moe:"وزارة التربية", mohesr:"وزارة التعليم العالي والبحث العلمي", mop:"وزارة التخطيط", mof:"وزارة المالية", unesco:"اليونسكو", unicef:"اليونيسف", wb:"البنك الدولي", eu:"الاتحاد الأوروبي"}},
+  en:{prepared:"Prepared and supervised by", support:"With support from", names:{iraq:"Republic of Iraq", pmac:"Prime Minister's Advisory Commission – Council of Ministers", hced:"The Higher Committee for Education Development in Iraq", moe:"Ministry of Education", mohesr:"Ministry of Higher Education and Scientific Research", mop:"Ministry of Planning", mof:"Ministry of Finance", unesco:"UNESCO", unicef:"UNICEF", wb:"World Bank", eu:"European Union"}},
+  ckb:{prepared:"ئامادەکردن و سەرپەرشتی", support:"بە پاڵپشتیی", names:{iraq:"کۆماری عێراق", pmac:"دەستەی ڕاوێژکاران – ئەنجومەنی وەزیران", hced:"لیژنەی باڵای پەرەپێدانی پەروەردە لە عێراق", moe:"وەزارەتی پەروەردە", mohesr:"وەزارەتی خوێندنی باڵا و توێژینەوەی زانستی", mop:"وەزارەتی پلاندانان", mof:"وەزارەتی دارایی", unesco:"یونسکۆ", unicef:"یونیسێف", wb:"بانکی نێودەوڵەتی", eu:"یەکێتیی ئەوروپا"}}
+};
+const LG = () => LOGO_I18N[lang] || LOGO_I18N.ar;
+function logoRow(set){
+  return LOGO_SETS[set].map(([k,f]) => `<span class="logo logo-${k}"><img src="assets/logos/${f}" alt="${esc(LG().names[k]||k)}" title="${esc(LG().names[k]||k)}" loading="lazy" onerror="this.parentNode.remove()"></span>`).join("");
+}
+function logoBar(){
+  return `<section class="logobar" id="logobar" hidden>
+    <div class="logogroup"><span class="logolabel">${LG().prepared}</span><div class="logos">${logoRow("prepared")}</div></div>
+    <div class="logogroup"><span class="logolabel">${LG().support}</span><div class="logos">${logoRow("support")}</div></div>
+  </section>`;
+}
+function initLogos(){
+  const bar = $("#logobar"); if(!bar) return;
+  const check = () => {
+    bar.querySelectorAll(".logogroup").forEach(g => { g.hidden = !g.querySelector(".logo"); });
+    bar.hidden = !bar.querySelector(".logo");
+  };
+  check(); setTimeout(check, 400); setTimeout(check, 1500);
+  const head = $("#brandLogo");
+  if(head){ const img = new Image(); img.onload = () => { head.innerHTML = `<img src="assets/logos/header.png" alt="">`; head.hidden = false; }; img.src = "assets/logos/header.png"; }
+}
+
 /* ---------- shared helpers exposed to content ---------- */
 function tbl(head, rows, numCols=[]){
   return `<div class="tbl"><table><thead><tr>${head.map((h,i)=>`<th class="${numCols.includes(i)?"n":""}">${h}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map((c,i)=>`<td class="${numCols.includes(i)?"n":""}">${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
@@ -2094,6 +2222,7 @@ function theoryOfChange(k, i){
   const cells = fn => `<div class="pcols" style="grid-template-columns:repeat(${cols},minmax(0,1fr))">${pl.progs.map((pr,j) => `<div class="k${j%3}">${fn(pr, ids[j])}</div>`).join("")}</div>`;
   return `<figure class="toc-fig ${k}">
     <h3>${C.ui.pillarN(i)}: ${pl.t}</h3>
+    <div class="tr"><div class="lab">${X().tocLabel}</div><div class="toc-narr"><span class="ifthen">${X().ifThen}</span>${(TOC_TEXT[lang]||TOC_TEXT.ar)[k][i]}</div></div>
     <div class="tr"><div class="lab">${C.ui.tocResult}</div><div class="res">${pl.r}</div></div>
     <div class="tr"><div class="lab">${C.ui.tocKpis}</div><div class="kpibox"><ul>${kp.slice(0,half).map(x=>`<li>${x}</li>`).join("")}</ul><ul>${kp.slice(half).map(x=>`<li>${x}</li>`).join("")}</ul></div></div>
     <div class="tr"><div class="lab">${C.ui.tocProgs}</div>${cells((pr,id) => { const r = rec(id); return `<div class="ph"><span>${pr.t}</span>${statusPill(r&&r.status)}</div>`; })}</div>
@@ -2126,6 +2255,7 @@ function route(keepScroll){
   else if(parts[0] === "tracking"){ r = "tracking"; renderTracking(); }
   else if(parts[0] === "partners"){ r = "partners"; renderPartners(); }
   else if(parts[0] === "downloads"){ r = "downloads"; renderDownloads(); }
+  else if(parts[0] === "read"){ r = "downloads"; renderReader(parts[1] === "en" ? "en" : "ar"); }
   else if(parts[0] === "admin"){ r = "admin"; renderAdmin(); }
   else renderHome();
   document.querySelectorAll("#nav a").forEach(a => { if(a.dataset.r === r) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
@@ -2137,13 +2267,62 @@ window.addEventListener("hashchange", () => route());
 function pageHead(crumb, title, sub, extraCls="", ic=""){
   return `<section class="page-head ${extraCls}"><div class="wrap ph-row">${ic}<div><div class="crumb"><a href="#/">${C.ui.navHome}</a> · ${crumb}</div><h1>${title}</h1>${sub?`<p>${sub}</p>`:""}</div></div></section>`;
 }
+const dlCounts = {};
+let dlLoaded = false;
+async function loadCounts(){
+  try{
+    const r = await fetch("api/downloads", {cache:"no-store"});
+    if(!r.ok || !(r.headers.get("content-type")||"").includes("json")) return;
+    const j = await r.json(); Object.keys(j.counts || {}).forEach(k => { dlCounts[k] = j.counts[k]; });
+    dlLoaded = true; paintCounts();
+  }catch(e){}
+}
+function paintCounts(){
+  if(!dlLoaded) return;
+  document.querySelectorAll("[data-count]").forEach(el => {
+    const n = dlCounts[el.dataset.count] || 0;
+    el.textContent = n ? X().dlCount(n) : X().dlCountZero;
+    el.hidden = false;
+  });
+}
+function countDownload(l){
+  dlCounts[l] = (dlCounts[l] || 0) + 1; paintCounts();
+  try{ fetch("api/count/" + l, {method:"POST", keepalive:true, headers:{"X-Requested-With":"ines"}}); }catch(e){}
+}
 function downloadCards(compact){
-  return `<div class="dl-grid ${compact?"compact":""}">${DOCS.map(d => `
-    <a class="dl-card" href="${d.file}" download>
+  const html = `<div class="dl-grid ${compact?"compact":""}">${DOCS.map(d => `
+    <div class="dl-card">
       ${icon("pdf")}
-      <span class="dl-txt"><small>${C.ui.dlLang[d.l]}</small><b>${C.ui.dlTitle}</b><span class="num">PDF · ${d.size} · ${d.pages} ${C.ui.pages}</span></span>
-      <span class="dl-btn">${icon("download","sm")}<span>${C.ui.download}</span></span>
-    </a>`).join("")}</div>${C.ui.dlNote ? `<p class="src">${C.ui.dlNote}</p>` : ""}`;
+      <span class="dl-txt"><small>${C.ui.dlLang[d.l]}</small><b>${C.ui.dlTitle}</b>
+        <span class="num">PDF · ${d.size} · ${d.pages} ${C.ui.pages}</span>
+        <span class="dl-count num" data-count="${d.l}" hidden></span></span>
+      <span class="dl-actions">
+        <a class="btn sm" href="#/read/${d.l}">${X().viewOnline}</a>
+        <a class="btn sm primary" href="${d.file}" download data-dl="${d.l}">${C.ui.download}</a>
+      </span>
+    </div>`).join("")}</div>${C.ui.dlNote ? `<p class="src">${C.ui.dlNote}</p>` : ""}`;
+  setTimeout(() => {
+    document.querySelectorAll("[data-dl]").forEach(a => a.addEventListener("click", () => countDownload(a.dataset.dl)));
+    paintCounts(); if(!dlLoaded) loadCounts();
+  }, 0);
+  return html;
+}
+function renderReader(l){
+  const d = DOCS.find(x => x.l === l) || DOCS[0];
+  view.innerHTML = pageHead(`<a href="#/downloads">${C.ui.navDownloads}</a> · ${C.ui.dlLang[d.l]}`, X().readTitle, X().readSub, "", icon("pdf","big")) + `
+  <main class="wrap">
+    <div class="reader-bar">
+      <div class="tabs">${DOCS.map(x => `<a class="tab" href="#/read/${x.l}" aria-selected="${x.l===d.l}">${C.ui.dlLang[x.l]}</a>`).join("")}</div>
+      <div class="reader-actions">
+        <a class="btn sm" href="${d.file}" target="_blank" rel="noopener">${X().openTab}</a>
+        <a class="btn sm primary" href="${d.file}" download data-dl="${d.l}">${C.ui.download}</a>
+      </div>
+    </div>
+    <div class="reader"><object data="${d.file}#view=FitH" type="application/pdf" title="${esc(C.ui.dlTitle)}">
+      <div class="reader-fb"><span>${X().pdfFallback}</span><a class="btn sm primary" href="${d.file}" target="_blank" rel="noopener">${X().openTab}</a></div>
+    </object></div>
+  </main>`;
+  document.querySelectorAll("[data-dl]").forEach(a => a.addEventListener("click", () => countDownload(a.dataset.dl)));
 }
 function renderHome(){
   const HM = C.home;
@@ -2161,6 +2340,7 @@ function renderHome(){
     <div class="strip"></div>
   </section>
   <main class="wrap">
+    ${logoBar()}
     <section class="sec">
       <div class="sec-h"><div><div class="eyebrow">${HM.statsEyebrow}</div><h2>${HM.statsTitle}</h2></div><p>${HM.statsNote}</p></div>
       <div class="stats">${HM.stats.map(([b,s]) => `<div class="stat"><b class="num">${b}</b><span>${s}</span></div>`).join("")}</div>
@@ -2184,7 +2364,7 @@ function renderHome(){
     </section>
   </main>`;
   const paint = () => { const el = $("#homeTrack"); if(el) el.innerHTML = trackingSummaryHTML(true); };
-  paint(); listeners.add(paint);
+  paint(); listeners.add(paint); initLogos();
 }
 function docTilesHTML(){
   const DL = docList();
@@ -2356,7 +2536,9 @@ function renderPartners(){
   view.innerHTML = pageHead(C.ui.navPartners, P.title, P.sub) + `<main class="wrap">
     ${P.sections.map(sec => `<section class="sec"><div class="sec-h"><div><div class="eyebrow">${sec.eyebrow}</div><h2>${sec.title}</h2></div>${sec.note?`<p>${sec.note}</p>`:""}</div><div class="pgrid">${sec.cards.map(card).join("")}</div></section>`).join("")}
     <section class="sec"><div class="sec-h"><div><div class="eyebrow">${P.mechEyebrow}</div><h2>${P.mechTitle}</h2></div></div>${tbl(P.mechHead, P.mechRows)}<div class="callout">${P.milestones}</div></section>
+    ${logoBar()}
   </main>`;
+  initLogos();
 }
 function renderDownloads(){
   view.innerHTML = pageHead(C.ui.navDownloads, C.ui.downloadStrategy, C.ui.dlSub, "", icon("download","big")) + `<main class="wrap">${downloadCards(false)}</main>`;

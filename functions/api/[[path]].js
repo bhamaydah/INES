@@ -9,6 +9,8 @@
  *
  * Routes (all under /api):
  *   GET    tracking          public: all tracking records
+ *   GET    downloads         public: download counts per document
+ *   POST   count/:lang       public: record one download (ar | en)
  *   PUT    tracking          signed-in: update one record
  *   POST   login             sign in (sets an HttpOnly cookie)
  *   POST   logout            sign out
@@ -103,6 +105,19 @@ export async function onRequest(context){
     if(route === "tracking" && method === "GET"){
       const agg = await env.INES_KV.get("tracking", "json");
       return json(agg || { exportedAt: "", records: {} }, 200, { "Cache-Control": "public, max-age=30" });
+    }
+
+    /* ---- download counters ---- */
+    if(route === "downloads" && method === "GET"){
+      const [ar, en] = await Promise.all([env.INES_KV.get("dl:ar"), env.INES_KV.get("dl:en")]);
+      return json({ counts: { ar: Number(ar) || 0, en: Number(en) || 0 } }, 200, { "Cache-Control": "public, max-age=60" });
+    }
+    if(path[0] === "count" && path[1] && method === "POST"){
+      const l = path[1] === "en" ? "en" : path[1] === "ar" ? "ar" : null;
+      if(!l) return json({ error: "bad_request" }, 400);
+      const n = (Number(await env.INES_KV.get("dl:" + l)) || 0) + 1;
+      await env.INES_KV.put("dl:" + l, String(n));
+      return json({ count: n });
     }
 
     /* ---- auth ---- */
