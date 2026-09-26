@@ -460,6 +460,30 @@ html[dir="ltr"] .sign{align-items:flex-end}
 .reader object,.reader iframe{width:100%;height:100%;border:0;display:block;background:var(--bg)}
 .reader-fb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;height:100%;padding:32px;text-align:center;color:var(--muted);font-size:15px;line-height:1.8}
 @media (max-width:640px){ .reader{height:70vh} .dl-actions{width:100%} }
+
+/* ---- cover pattern (from the strategy cover page) ---- */
+:root{ --pat-bg:#203e31; --pat:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MDAgODAwIiB3aWR0aD0iODAwIiBoZWlnaHQ9IjgwMCI+PGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsODAwLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIgZmlsbD0iIzBiMWExMiIgZmlsbC1vcGFjaXR5PSIuNTUiPjxwYXRoIGQ9Ik0wIDc4NjEgbDAgLTEzOSA0MCAtMTYgNDAgLTE2IDE4IDAgMTcgMCAxNTUgMTU1IDE1NSAxNTUgLTIxMyAwIC0yMTIgMCAwIC0xMzl6Ii8+IDxwYXRoIGQ9Ik00ODAgNzc2MyBsMSAtMjM4IDIxNSAtMTAxIDIxNiAtMTAxIDEgLTcgMiAtOCAtMjk0IC0xMTQgLTI5NCAtMTEzIC0yIC0zIC0zIC0zIC03NyAtMjM5IC03NiAtMjM5IC04IDkgLTggOSAtNjcgMTQ1IC02OCAxNDUgLTkgMTUgLTggMTUgMCAtNzg1IDEgLTc4NSA4MiAxNzAgODIgMTcwIDgwIC0yNDQgNzkgLTI0NSAyOTggLTExNCAyOTcgLTExNSAwIC02IC0xIC02IC0yMTcgLTEwMiAtMjE3IC0xMDEgLTMgLTI2OCAtMiAtMjY4IC0xODkgMTg4IC0xODkgMTg4IC01MSAtMTcgLTUxIC0xNyAwIC0xNzUgMCAtMTc2IDcgNyA3IDcgMjYzIC0yNjMgMjYzIC0yNjMgMCAtMzg0IDAgLTM4NCAtMjcwIDYgLTI3MCA2IDAgLTI5NyAwIC0yOTcgMTA1IC0xMDUgMTA1IC0xMDUgLTEwNSAtMTA1IC0xMDUgLTEwNSAwIC0yOTggMCAtMjk3IDI3MCAwIDI3MCAwIDAgLTM3OCAwIC0zNzcgLTI3MCAtMjcwIC0yNzAgLTI2OSAwIC0yOCAwIC0yOCAyMDcgMCAyMDcgMCAzMyAzMiAzMyAzMiAwIC0zMiAwIC0zMiAxNjAgMCAxNjAgMCAwIDIzNyAwIDIzOCAyNzIgMjczIDI3MyAyNzMgMjY3IC0yNzMgMjY3IC0yNzMgMSAtMjM3IDAgLTIzOCAxNjAgMCAxNjAgMCAwIDM3IDAgMzcgMzggLTM3IDM4IC0zNyA1ODAgMCA1ODEgMCAxMCAyMyAxMSAyMyAyNzAgOTcgMjcxIDk3IDggMCA4IDAgMTIwIC0xMjAgMTIwIC0xMjAgMjcyIDAgMjczIDAgMiAyODcgMyAyODcgMjYwIDEyMyAyNjAgMTIzIDEyIDAgMTIgMCAyNjMgLTEyNCAyNjMgLTEyNCAzIC0yODYgMiAtMjg2IDI3MyAwIDI3MiAwIDEyMiAxMjIgMTIyIDEyMSAyNzcgLTk5IDI3NiAtOTkgOSAtMjIgOSAtMjMgMzgwIDAgMzgxIDAgLTMgMzcgLTMgMzYgLTI2OSA5NyAtMjcwIDk3IC04IDE0IC05IDE0IC05NSAyNjUgLTk0IDI2NCAyNjIgMjYzIDI2MyAyNjMgMTEyIDAgMTEzIDAgMCAzMDIgMCAzMDMgLTE3MyAtMTczIC0xNzIgLTE3MiAtMzYxIDAgLTM2MiAwIC05IDEzIC0xMCAxMiAtMTIzIDI2MCAtMTIyIDI2MCAyNSA1MCAyNCA1MCAxMDMgMjE4IDEwMyAyMTcgMzY2IDAgMzY3IDAgNzQgLTc2IDc1IC03NSA5OCAtOTEgOTcgLTkwIDAgMzAxIDAgMzAxIC0xMTggMCAtMTE3IDAgLTI1OSAyNTkgLTI1OCAyNTggOTggMjc0IDk3IDI3NCAxMiAxMCAxMyAxMCAyNjYgOTUgMjY2IDk1IDAgMTcyIDAgMTcyIC0xMjcgLTQ1IC0xMjggLTQ2IC01MyAtMTkgLTUzIC0xOCA3IDIyIDcgMjIgNzMgMjA1IDc0IDIwNSAtMTg1IDE4NSAtMTg1IDE4NSAwIDggMCA3IDI2NiAwIDI2NSAwIDIwIDQ0IDE5IDQ0IC0yIDM3NSAtMyAzNzQgLTEyMSAtMjU2IC0xMjAgLTI1NiAtMzcwIC0yIC0zNjkgLTMgLTI3MSAyNzAgLTI3MCAyNjkgMjcxIDI3MSAyNzAgMjcwIDM2OSAtMiAzNjggLTMgMTIyIC0yNTggMTIxIC0yNTggMyAzNzMgMyAzNzMgLTIyIDQ4IC0yMiA0NyAtMjY2IDAgLTI2NiAwIDE4OCAxODggMTg4IDE4OCAtODAgMjI0IC04MSAyMjQgNSA0IDQgNSAxNjMgLTU4IDE2MyAtNTggMTMgLTUgMTIgLTQgMCAxNDEgMCAxNDEgLTM4MSAwIC0zODEgMCA0IC0xMiA0IC0xMyA4OSAtMjQ4IDg4IC0yNDggLTI2NCAtMjY1IC0yNjQgLTI2NCAtMzc3IDAgLTM3OCAwIDAgMzc3IDAgMzc4IDE0NyAxNDcgMTQ4IDE0OCAtMjc4IDAgLTI3NyAwIDAgLTg4IDAgLTg3IC0yNjkgLTI2OSAtMjY5IC0yNjggLTggMyAtOSA0IC0yNjIgMjY1IC0yNjMgMjY1IDAgODggMCA4NyAtMjc3IDAgLTI3OCAwIDE0MiAtMTQyIDE0MSAtMTQzIDcgLTM4MiA3IC0zODMgLTM4NCAwIC0zODMgMCAtMjYyIDI2MyAtMjYyIDI2MiA5NCAyNjAgOTMgMjYwIC0yOTUgMyAtMjk0IDIgLTI5MCAtMiAtMjg5IC0zIDE1NyAtMTU2IDE1OCAtMTU3IDIxOSA4MCAyMTggNzkgOCAtMyA3IC0zIC04MCAtMjIzIC04MCAtMjIzIDE4OSAtMTkwIDE4OCAtMTg5IC0yNjkgLTIgLTI2OSAtMyAtOTUgLTIwMiAtOTUgLTIwMyAtNyA4IC03IDcgLTcyIDIyNSAtNzIgMjI1IC0xMiAxMSAtMTEgMTIgLTI4MCAxMDcgLTI4MCAxMDcgLTEzIDcgLTEzIDcgMjIxIDEwNCAyMjAgMTA0IDAgMjM4IDAgMjM4IC0xNjAgMCAtMTYwIDAgMCAtMTM0IDAgLTEzMyAtMjE3IC0xMDMgLTIxOCAtMTAzIC01MCAtMjQgLTUwIC0yNSAtMjYwIDEyMiAtMjYwIDEyMyAtMTIgMTAgLTEzIDkgMCAxMjkgMCAxMjkgLTE2MCAwIC0xNjAgMCAwIC0yMzd6IG00ODUzIC05MzMgbDEyIDAgMjM3IDIzNyAyMzggMjM4IDAgLTMzOCAwIC0zMzcgMzM3IDAgMzM4IDAgLTIzOCAtMjM4IC0yMzcgLTIzNyAwIC0xMiAwIC0xMSAyMzYgLTIzMSAyMzYgLTIzMSAtMzM4IDAgLTMzOSAwIDMgLTMzNyAyIC0zMzggLTI0MCAyNDAgLTI0MCAyMzkgLTI0MCAtMjM5IC0yNDAgLTIzOSAwIDMzNyAwIDMzNyAtMzM3IDAgLTMzOCAwIDI0MSAyNDEgMjQxIDI0MSAtMjQxIDIzOSAtMjQxIDIzOCAzMzggMSAzMzcgMCAwIDMzNiAwIDMzNiAyMzEgLTIzNiAyMzEgLTIzNiAxMSAweiBtLTM2MDYgMTQ4IGwzNzIgLTE0MyA5MCAtMjc1IDg5IC0yNzUgMjIgLTcwIDIyIC03MCAtMTExIC0zNDEgLTExMSAtMzQxIC0zNjkgLTE0MiAtMzY4IC0xNDIgLTE5IC0xIC0xOSAtMSAtMzY0IDE0MSAtMzY1IDE0MiAtNyA3IC03IDggLTEwOSAzMzYgLTEwOSAzMzYgMTEwIDM0MyAxMTEgMzQyIDM3MCAxNDQgMzcwIDE0MyAxNSAxIDE1IDAgMzcyIC0xNDJ6IG0yMjAzIC01NTggbDI3NSAtMjY5IC0yNzAgLTI3MCAtMjcwIC0yNzEgLTM3MCAwIC0zNzAgMCAtMTI3IDI3MCAtMTI3IDI2OSAxMjcgMjcwIDEyNyAyNzAgMzY1IDAgMzY1IDAgMjc1IC0yNjl6IG0tMTI2MCAtMTAzMiBsNDUgLTk3IDI3MCAtMSAyNzAgMCAtMTg4IC0xODggLTE4NyAtMTg3IDAgLTEwIDAgLTEwIDgwIC0yMjAgNzkgLTIyMCAtMiAtMiAtMyAtMiAtMjE5IDc5IC0yMjAgODAgLTEwIDAgLTEwIDAgLTE4NSAtMTg1IC0xODUgLTE4NSAtNSAyNjcgLTUgMjY3IC0yMTIgMTAxIC0yMTIgMTAwIC00IDUgLTUgNSAyOTkgMTE1IDMwMCAxMTUgNzYgMjM1IDc2IDIzNSA0IDggNSA4IDUyIC0xMDggNTEgLTEwOCA0NSAtOTd6IG0xODYyIC00MjMgbC00IC0zODAgLTI2MSAtMjYxIC0yNjIgLTI2MSAtMjc2IDk5IC0yNzcgMTAwIC0xMDAgMjc3IC05OSAyNzYgMjYxIDI2MiAyNjAgMjYzIDIxMSAzIDIxMCAzIDE3MCAtMSAxNzAgMCAtMyAtMzgweiBtMjYzMSAxMTcgbDI1NyAtMjU3IDAgLTggMCAtOCAtOTYgLTI2NyAtOTUgLTI2NyAtOSAtOCAtOCAtOSAtMjczIC05OCAtMjc0IC05OSAtMjYyIDI2MiAtMjYzIDI2MiAwIDM4MyAwIDM4NCAzODMgLTcgMzgyIC03IDI1OCAtMjU2eiBtLTEyODQgLTk4MiBsMCAtMzY1IC0yNjYgLTEyNSAtMjY3IC0xMjUgLTE0IDMgLTE0IDMgLTI1OSAxMjIgLTI1OSAxMjIgMCAzNzAgMCAzNzAgMjcxIDI3MCAyNzEgMjcwIDI2OSAtMjc1IDI2OCAtMjc1IDAgLTM2NXogbS00MTM3IDUyOSBsMTM4IC02NCAwIC0zNzAgMCAtMzcwIC0yNjggLTI2OCAtMjY4IC0yNjggLTI3MiAyNzMgLTI3MiAyNzMgMyAzNjQgMiAzNjUgMjY5IDEyNyAyNjkgMTI3IDEzMSAtNjIgMTMxIC02MiAxMzcgLTY1eiBtMTU4NSAtODY5IGwxMDAgLTI3OCAtMjYxIC0yNjAgLTI2MSAtMjYxIC0zODAgLTMgLTM4MCAtMyAzIDM4MCAzIDM4MCAyNjEgMjYxIDI2MCAyNjEgMjc4IC0xMDAgMjc4IC05OSA5OSAtMjc4eiBtMTM1OCAtMzMwIGwyMDQgLTk1IC03IC02IC03IC03IC0yMzUgLTc1IC0yMzUgLTc2IC0xMTUgLTMwMCAtMTE1IC0yOTkgLTUgNSAtNSA0IC0xMDAgMjEyIC0xMDEgMjEyIC0yNjcgNSAtMjY3IDUgMTg1IDE4NSAxODUgMTg1IDAgMTAgMCAxMCAtODAgMjIwIC03OSAyMTkgMiAzIDIgMiAyMjAgLTc5IDIyMCAtODAgMTAgMCAxMCAwIDE4NSAxODUgMTg1IDE4NSAzIC0yNjcgMyAtMjY4IDIwNCAtOTV6IG0yMTE3IDMzNyBsMjIzIDgwIDMgLTcgMyAtOCAtNzkgLTIxOCAtODAgLTIxOSAxOTIgLTE5MiAxOTEgLTE5MyAtMjcxIDAgLTI3MCAwIC0xMDQgLTIyMCAtMTA0IC0yMjEgLTcgMTMgLTcgMTMgLTEwNyAyODAgLTEwNyAyODAgLTEyIDExIC0xMSAxMiAtMjI1IDcyIC0yMjUgNzIgLTcgNyAtOCA3IDIwMyA5NSAyMDIgOTUgMyAyNjkgMiAyNjkgMTg5IC0xODggMTkwIC0xODkgMjIzIDgweiBtLTU3MDAgLTcwMiBsMjMwIC0yMzUgOSAwIDkgMCAyMzQgMjM4IDIzNSAyMzcgMSAtMzM3IDAgLTMzOCAzMzggMCAzMzcgLTEgLTIzNyAtMjM1IC0yMzggLTIzNCAwIC05IDAgLTkgMjM1IC0yMzAgMjM1IC0yMzAgMCAtMyAwIC00IC0zMzUgNCAtMzM1IDMgMCAtMzM4IDAgLTMzOSAtMjM5IDIzOSAtMjM4IDIzOCAtMjMzIC0yMzYgLTIzMyAtMjM2IC02IDAgLTYgMCA0IDMzNiAzIDMzNiAtMzM2IC0zIC0zMzYgLTQgMCA2IDAgNiAyMzYgMjMzIDIzNiAyMzMgLTIzOCAyMzggLTIzOSAyMzkgMzM5IDAgMzM4IDAgLTMgMzM1IC00IDMzNSA0IDAgMyAwIDIzMCAtMjM1eiBtNDU4MiAtNDQgbDMzOCAtMTEwIDIgLTMgMiAtMyAxNDIgLTM3MCAxNDIgLTM3MCAwIC0xNSAtMSAtMTUgLTE0MyAtMzcwIC0xNDMgLTM3MCAtMzI5IC0xMDcgLTMyOSAtMTA3IC0yNCAwIC0yMyAtMSAtMzI3IDEwNiAtMzI2IDEwNiAtOCA3IC03IDcgLTE0MiAzNjUgLTE0MSAzNjQgMSAxOSAxIDE5IDE0MiAzNjggMTQyIDM2OSAzMzEgMTA5IDMzMSAxMDkgMTUgMSAxNiAxIDMzOCAtMTA5eiBtLTE4NjUgLTQ2OSBsNjUgLTEzNyA2MiAtMTMxIDYyIC0xMzEgLTEyNyAtMjY5IC0xMjcgLTI2OSAtMzY1IC0yIC0zNjQgLTMgLTI3MyAyNzIgLTI3MyAyNzIgMjY4IDI2OCAyNjggMjY4IDM3MCAwIDM3MCAwIDY0IC0xMzh6IG00NzMgLTExMTkgbDExNCAtMjk4IDI0NCAtNzkgMjQ1IC03OSAtOTUgLTQ2IC05NSAtNDYgLTExMiAtNTMgLTExMyAtNTIgMCAtMjY1IDAgLTI2NSAtNyAwIC04IDAgLTE4NSAxODUgLTE4NSAxODUgLTIyNCAtODEgLTIyMyAtODAgLTMgMyAtMyAzIDgwIDIyMyA4MSAyMjQgLTE4OSAxODkgLTE4OCAxODkgMjY4IDIgMjY4IDMgMTAxIDIxNyAxMDIgMjE3IDYgMSA2IDAgMTE1IC0yOTd6IG0yMzIzIDczIGwxMDAgLTIxNSAyNjUgLTEgMjY1IDAgLTE4MyAtMTgzIC0xODIgLTE4MiAwIC0xNSAwIC0xNSA3NiAtMjEzIDc3IC0yMTMgLTUgLTQgLTQgLTUgLTIyNCA4MSAtMjI0IDgwIC0xODggLTE4OCAtMTg4IC0xODggMCAyNjYgMCAyNjYgLTE5NyA5MyAtMTk4IDkzIC05IDggLTkgOCAyMzkgNzYgMjM5IDc3IDMgMyAzIDIgMTA3IDI3OSAxMDggMjc5IDcgMTggNyAxOCA3IC01IDggLTUgMTAwIC0yMTV6IG0tMzQ0OCAtNDE4IGwyNjEgLTI2MyAtOTkgLTI3NSAtMTAwIC0yNzUgLTcgLTYgLTcgLTYgLTI3NCAtOTcgLTI3NCAtOTggLTI1OCAyNTggLTI1NyAyNTkgLTcgMzgzIC04IDM4MiAzODQgMCAzODQgMCAyNjIgLTI2MnoiLz48L2c+PC9zdmc+"); --pat-size:340px }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --pat-bg:#15281e } }
+:root[data-theme="dark"]{ --pat-bg:#15281e }
+.top,.hero,.page-head{ background-color:var(--pat-bg); background-image:var(--pat); background-size:var(--pat-size) var(--pat-size); background-repeat:repeat }
+.top{ background-position:center top }
+.hero,.page-head{ background-position:center top }
+@media (max-width:640px){ :root{ --pat-size:250px } }
+
+/* ---- partner logos inside the cards ---- */
+.partner{ display:flex; flex-direction:column; align-items:flex-start }
+.plogo{ display:flex; align-items:center; justify-content:center; height:62px; margin-bottom:12px }
+.plogo img{ height:62px; width:auto; max-width:150px; object-fit:contain; display:block }
+.plogo.noimg img{ display:none }
+.plogo-fb{ display:none }
+.plogo.noimg .plogo-fb{ display:flex; align-items:center; justify-content:center; width:52px; height:52px; border-radius:16px; border-start-start-radius:0; background:var(--lime-2) }
+.plogo.noimg .plogo-fb svg{ width:28px; height:28px; stroke:var(--sec-green); fill:none }
+@media (max-width:640px){ .plogo,.plogo img{ height:52px } }
+
+/* ---- national emblem above the vision ---- */
+.vision-logo{ display:block; text-align:center; margin-bottom:14px }
+.vision-logo img{ height:84px; width:auto; display:inline-block }
+@media (max-width:640px){ .vision-logo img{ height:64px } }
 </style>
 </head>
 <body>
@@ -2335,7 +2359,7 @@ function renderHome(){
         <p class="lead">${HM.lead}</p>
         <div class="hero-actions"><a class="btn hero-btn" href="#/doc">${C.ui.navDoc}</a><a class="btn hero-btn ghost" href="#/downloads">${icon("download","xs")} ${C.ui.downloadStrategy}</a></div>
       </div>
-      <div class="vision"><small>${C.ui.vision}</small><p>${HM.vision}</p></div>
+      <div class="vision"><span class="vision-logo"><img src="assets/logos/iraq.png" alt="" onerror="this.closest('.vision-logo').remove()"></span><small>${C.ui.vision}</small><p>${HM.vision}</p></div>
     </div>
     <div class="strip"></div>
   </section>
@@ -2530,15 +2554,23 @@ function renderTracking(mode){
   paint(); listeners.add(paint);
   if(admin && filt.tab === "users") renderUsers();
 }
+const PARTNER_MARKS = [
+  [["pmac","monitoring"],["moe","pillars"],["mohesr","research"],["mop","analysis"],["mof","money"],["molsa","pillars"],["governorates","infra"]],
+  [["unesco","quality"],["worldbank","money"],["unicef","access"],["iiep","research"],["eu","context"],["wfp","quality"]],
+  [["private","program"],["civil","thanks"]]
+];
+function partnerMark(si, ci){
+  const m = (PARTNER_MARKS[si] || [])[ci];
+  if(!m) return "";
+  return `<span class="plogo"><img src="assets/logos/${m[0]}.png" alt="" loading="lazy" onerror="this.closest('.plogo').classList.add('noimg')"><i class="plogo-fb">${icon(m[1])}</i></span>`;
+}
 function renderPartners(){
   const P = C.partners;
-  const card = ([name, tag, items]) => `<article class="partner"><span class="tag">${tag}</span><h3>${name}</h3><ul>${items.map(i=>`<li>${i}</li>`).join("")}</ul></article>`;
+  const card = (si) => ([name, tag, items], ci) => `<article class="partner">${partnerMark(si, ci)}<span class="tag">${tag}</span><h3>${name}</h3><ul>${items.map(i=>`<li>${i}</li>`).join("")}</ul></article>`;
   view.innerHTML = pageHead(C.ui.navPartners, P.title, P.sub) + `<main class="wrap">
-    ${P.sections.map(sec => `<section class="sec"><div class="sec-h"><div><div class="eyebrow">${sec.eyebrow}</div><h2>${sec.title}</h2></div>${sec.note?`<p>${sec.note}</p>`:""}</div><div class="pgrid">${sec.cards.map(card).join("")}</div></section>`).join("")}
+    ${P.sections.map((sec, si) => `<section class="sec"><div class="sec-h"><div><div class="eyebrow">${sec.eyebrow}</div><h2>${sec.title}</h2></div>${sec.note?`<p>${sec.note}</p>`:""}</div><div class="pgrid">${sec.cards.map(card(si)).join("")}</div></section>`).join("")}
     <section class="sec"><div class="sec-h"><div><div class="eyebrow">${P.mechEyebrow}</div><h2>${P.mechTitle}</h2></div></div>${tbl(P.mechHead, P.mechRows)}<div class="callout">${P.milestones}</div></section>
-    ${logoBar()}
   </main>`;
-  initLogos();
 }
 function renderDownloads(){
   view.innerHTML = pageHead(C.ui.navDownloads, C.ui.downloadStrategy, C.ui.dlSub, "", icon("download","big")) + `<main class="wrap">${downloadCards(false)}</main>`;
