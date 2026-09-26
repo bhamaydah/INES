@@ -495,6 +495,31 @@ a.plogo:focus-visible{ outline:2px solid var(--sec-green); outline-offset:4px }
 
 a.plogo.wide img,.plogo.wide img{ max-width:190px }
 .plogo img[src$="icsef.png"]{ max-width:200px }
+
+/* ---- executive actions layer ---- */
+dialog.wide{width:min(900px,calc(100vw - 28px));max-height:90vh}
+dialog.wide .dlg-b{max-height:70vh;overflow:auto}
+.row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+h4.fs{margin:6px 0 0;font-size:13px;font-weight:700;letter-spacing:.04em;color:var(--sage);border-top:1px solid var(--line);padding-top:12px}
+.act-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.act-bar .src{margin-inline-start:auto}
+.summary.act-sum{margin-bottom:6px}
+.kpi.act{grid-template-columns:minmax(0,2.6fr) minmax(0,1fr) minmax(0,1.1fr) minmax(0,1.3fr) auto}
+.kpi.act .note.act-kpi{grid-column:1/-1;font-size:13.5px;color:var(--muted)}
+.wf{display:inline-block;font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.wf-draft{background:var(--bg)}
+.wf-review{background:#fdf3d8;border-color:#e9cf8a;color:#7a5a12}
+.wf-approved{background:#e3f1e2;border-color:#9ecb9d;color:#1f5a35}
+.btn.danger{border-color:#c98a80;color:#8b3220}
+.btn.danger:hover{background:#f7ece9}
+.per-list{display:grid;gap:10px}
+.per{background:var(--bg);border:1px solid var(--line);border-radius:12px;border-start-start-radius:0;padding:10px 12px;display:grid;gap:4px;font-size:14px;position:relative}
+.per [data-per-del]{position:absolute;inset-inline-end:8px;top:8px}
+.map-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.map-grid label{display:grid;gap:4px;font-size:13px;font-weight:600;color:var(--ink)}
+.map-grid select{font:inherit;font-size:14px;font-weight:400;padding:7px 10px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--text);width:100%}
+@media (max-width:900px){ .row3,.map-grid{grid-template-columns:1fr 1fr} .kpi.act{grid-template-columns:1fr 1fr} }
+@media (max-width:640px){ .row3,.map-grid{grid-template-columns:1fr} .act-bar .src{margin-inline-start:0} }
 </style>
 </head>
 <body>
@@ -2547,6 +2572,7 @@ function progListHTML(canEdit){
 function renderTracking(mode){
   const admin = mode === "admin" && session;
   if(!admin && filt.tab === "users") filt.tab = "kpi";
+  if(!["kpi","prog","act","users"].includes(filt.tab)) filt.tab = "kpi";
   const head = admin
     ? `<section class="page-head admin-head"><div class="wrap"><div class="crumb"><a href="#/">${C.ui.navHome}</a> · ${A().eyebrow}</div><h1>${A().adminTitle}</h1><p>${A().hello(esc(session.name))}</p>
         <div class="admin-bar"><span class="pill s-on_track">${session.owner ? A().owner : session.role==="admin" ? A().roleAdmin : A().roleEditor} · <span dir="ltr">${esc(session.user)}</span></span><button class="btn light" id="logout" type="button">${A().logout}</button></div></div></section>`
@@ -2557,6 +2583,7 @@ function renderTracking(mode){
     <div class="tabs" role="tablist" id="trkTabs" style="margin-top:28px">
       <button class="tab" role="tab" data-t="kpi" aria-selected="${filt.tab==="kpi"}">${C.ui.tabKpis}</button>
       <button class="tab" role="tab" data-t="prog" aria-selected="${filt.tab==="prog"}">${C.ui.tabProgs}</button>
+      <button class="tab" role="tab" data-t="act" aria-selected="${filt.tab==="act"}">${AC().tab}</button>
       ${admin && (session.role === "admin" || session.owner) ? `<button class="tab" role="tab" data-t="users" aria-selected="${filt.tab==="users"}">${A().tabUsers}</button>` : ""}
     </div>
     <div class="filters" id="filters">
@@ -2566,16 +2593,31 @@ function renderTracking(mode){
     </div>
     <div id="trkList"></div>
   </main>`;
-  const paint = () => { const el = $("#trkSummary"); if(!el) return; el.innerHTML = trackingSummaryHTML(false); $("#filters").hidden = filt.tab === "users"; if(filt.tab === "users") return; $("#trkList").innerHTML = filt.tab === "kpi" ? kpiListHTML(!!admin) : progListHTML(!!admin); };
+  const paint = () => {
+    const el = $("#trkSummary"); if(!el) return;
+    el.innerHTML = trackingSummaryHTML(false);
+    $("#filters").hidden = filt.tab === "users";
+    $("#fs").hidden = filt.tab === "act";
+    if(filt.tab === "users") return;
+    $("#trkList").innerHTML = filt.tab === "kpi" ? kpiListHTML(!!admin) : filt.tab === "act" ? actListHTML(!!admin) : progListHTML(!!admin);
+    if(filt.tab === "act" && admin){
+      const b = (id, fn) => { const el2 = $("#"+id); if(el2) el2.addEventListener("click", fn); };
+      b("actNew", () => openActEditor(null)); b("actImp", openImport); b("actExp", exportActions); b("actTpl", downloadTemplate);
+    }
+  };
   $("#fg").addEventListener("change", e => { filt.g = e.target.value; paint(); });
   $("#fs").addEventListener("change", e => { filt.s = e.target.value; paint(); });
   $("#fq").addEventListener("input", e => { filt.q = e.target.value.trim(); paint(); });
   $("#trkTabs").addEventListener("click", e => { const b = e.target.closest(".tab"); if(!b) return; filt.tab = b.dataset.t; document.querySelectorAll("#trkTabs .tab").forEach(t=>t.setAttribute("aria-selected", t===b?"true":"false")); paint(); if(filt.tab === "users") renderUsers(); });
   if(admin){
-    $("#trkList").addEventListener("click", e => { const b = e.target.closest("[data-edit]"); if(b) openEditor(b.dataset.edit, b.dataset.kind); });
+    $("#trkList").addEventListener("click", e => {
+      const b = e.target.closest("[data-edit]"); if(b) return openEditor(b.dataset.edit, b.dataset.kind);
+      const a = e.target.closest("[data-act-edit]"); if(a) openActEditor(a.dataset.actEdit);
+    });
     $("#logout").addEventListener("click", async () => { try{ await api("logout", {method:"POST", body:{}}); }catch(e){} session = null; renderLogin(); });
   }
   paint(); listeners.add(paint);
+  loadActions(mode === "admin");
   if(admin && filt.tab === "users") renderUsers();
 }
 const PARTNER_MARKS = [
@@ -2750,6 +2792,482 @@ async function saveEditor(){
   }catch(e){ $("#dlgErr", dlg).textContent = T.netErr; }
   $("#dlgSave", dlg).disabled = false;
 }
+
+/* ================= executive actions layer (الإجراءات التنفيذية) ================= */
+const ACT_ST = ["not_started","ongoing","delayed","stopped","done"];
+const ACT_ST_COLOR = {not_started:"idle", ongoing:"ok", delayed:"warn", stopped:"bad", done:"done"};
+const WF_ST = ["draft","review","approved"];
+const ACT_UNITS = ["percent","count","school","classroom","trainee","teacher","student","doc","other"];
+const AMT_UNITS = ["one","thousand","million","billion"];
+
+const AC_I18N = {
+ar:{tab:"الإجراءات التنفيذية", title:"الإجراءات التنفيذية", none:"لا توجد إجراءات مسجّلة بعد.", noneAdmin:"لا توجد إجراءات بعد. أضف إجراءً يدوياً أو استورد الاستمارة من ملف Excel.",
+  add:"إجراء جديد", imp:"استيراد من Excel", exp:"تصدير CSV", tpl:"تحميل القالب", edit:"تحرير", del:"حذف", delAsk:"حذف هذا الإجراء نهائياً؟",
+  secDef:"تعريف الإجراء", secMeas:"القياس والربط بالاستراتيجية", secFin:"التمويل", secPer:"التحديث الدوري", secWf:"التحقق والاعتماد",
+  fTitle:"الإجراء التنفيذي / المشروع", fRef:"الرمز المرجعي", fMin:"الوزارة / الجهة المبلِّغة", fSector:"القطاع", fComp:"المكون", fObj:"الهدف", fProg:"البرنامج", fSub:"البرنامج الفرعي",
+  fImpl:"الجهة المنفذة", fBen:"الجهة المستفيدة", fStart:"تاريخ بداية التنفيذ", fEnd:"تاريخ الإنجاز",
+  fInd:"مؤشر القياس (كما في الاستمارة)", fKpi:"مؤشر النتائج المرتبط", fKpiNone:"بدون ربط", fUnit:"وحدة القياس", fTarget:"المستهدف الكلي", fAch:"المتحقق الكلي", fStatus:"موقف الإجراء",
+  fCost:"الكلفة الكلية", fFund:"التمويل المخصص", fSpent:"المبلغ المصروف", fCur:"العملة", fAmt:"وحدة المبلغ", fSrc:"مصدر التمويل", gap:"الفجوة التمويلية",
+  fPeriod:"الفترة", fPTarget:"مستهدف الفترة", fPAch:"متحقق الفترة", fDone:"ما أُنجز في الفترة", fReason:"سبب التأخر أو الانحراف", fNext:"الخطوة التالية", addPeriod:"إضافة تحديث للفترة", noPeriods:"لا توجد تحديثات فصلية بعد.",
+  fWf:"حالة الاعتماد", fEv:"رابط الدليل", fNote:"ملاحظات",
+  st:{not_started:"لم يبدأ", ongoing:"قيد التنفيذ", delayed:"متأخر / حيود", stopped:"متوقف", done:"منجز"},
+  wf:{draft:"مسودة", review:"قيد المراجعة", approved:"معتمد"},
+  units:{percent:"نسبة مئوية", count:"عدد", school:"عدد مدارس", classroom:"عدد صفوف", trainee:"عدد متدربين", teacher:"عدد معلمين", student:"عدد طلبة", doc:"وثيقة / إجراء", other:"أخرى"},
+  amt:{one:"دينار", thousand:"ألف", million:"مليون", billion:"مليار"},
+  sum:{actions:"عدد الإجراءات", approved:"المعتمد", progress:"متوسط تنفيذ الإجراءات", note:"يُقاس تنفيذ الإجراءات بمعزل عن مؤشرات النتائج؛ ارتفاع الأول لا يعني بالضرورة تحسّن الثاني."},
+  save:"حفظ", cancel:"إغلاق", saving:"جارٍ الحفظ…", saved:"تم الحفظ.", needTitle:"اكتب عنوان الإجراء.", err:"تعذر الحفظ. حاول مرة أخرى.",
+  onlyApproved:"المعروض للجمهور هو الإجراءات المعتمدة فقط.",
+  impTitle:"استيراد الإجراءات من ملف Excel", impStep1:"1) اختر الملف", impStep2:"2) مطابقة الأعمدة", impStep3:"3) المراجعة قبل الاستيراد",
+  impFile:"ملف الاستمارة (xlsx أو csv)", impSheet:"الورقة", impHeader:"رقم صف العناوين", impLoad:"قراءة الملف", impCol:"العمود في الملف", impIgnore:"— تجاهل —",
+  impRows:n=>`عدد الصفوف المقروءة: ${n}`, impReady:n=>`صالح للاستيراد: ${n}`, impSkip:n=>`سيُتجاوز (بلا عنوان إجراء): ${n}`,
+  impWarn:"تنبيهات", impPreview:"معاينة أول خمسة صفوف", impGo:"استيراد كمسودات", impDone:(a,s)=>`تم استيراد ${a} إجراءً${s?`، وتم تجاوز ${s}`:""}. جميعها بحالة «مسودة» بانتظار المراجعة والاعتماد.`,
+  impNote:"لا يُنشر أي صف مستورد للجمهور قبل مراجعته وتحويله إلى «معتمد». لا تُؤخذ نسب الإنجاز الجاهزة من الملف؛ تُحتسب من المستهدف والمتحقق.",
+  impXlsxErr:"تعذر قراءة ملف xlsx (يحتاج اتصالاً بالإنترنت لتحميل قارئ الملفات). احفظ الورقة بصيغة CSV ثم أعد المحاولة.",
+  impNoFile:"اختر ملفاً أولاً.", impNoRows:"لم يُعثر على صفوف بيانات تحت صف العناوين المحدد.",
+  wTarget:n=>`${n} صفاً بمستهدف غير رقمي`, wUnit:n=>`${n} صفاً بوحدة قياس غير معروفة (ستُسجَّل «أخرى»)`, wDup:n=>`${n} عنوان إجراء مكرر`, wNoComp:n=>`${n} صفاً بلا مكون`,
+  fSectorOpts:{ge:"التعليم العام", tv:"التعليم التقني والمهني", he:"التعليم العالي"}},
+en:{tab:"Executive actions", title:"Executive actions", none:"No actions recorded yet.", noneAdmin:"No actions yet. Add one manually or import a ministry template from Excel.",
+  add:"New action", imp:"Import from Excel", exp:"Export CSV", tpl:"Download template", edit:"Edit", del:"Delete", delAsk:"Delete this action permanently?",
+  secDef:"Action definition", secMeas:"Measurement and link to the strategy", secFin:"Financing", secPer:"Periodic update", secWf:"Verification and approval",
+  fTitle:"Executive action / project", fRef:"Reference code", fMin:"Reporting ministry", fSector:"Sub-sector", fComp:"Component", fObj:"Objective", fProg:"Programme", fSub:"Sub-programme",
+  fImpl:"Implementing entity", fBen:"Beneficiary entity", fStart:"Start date", fEnd:"Completion date",
+  fInd:"Measurement indicator (as in the template)", fKpi:"Linked results indicator", fKpiNone:"Not linked", fUnit:"Unit of measurement", fTarget:"Total target", fAch:"Total achieved", fStatus:"Action status",
+  fCost:"Total cost", fFund:"Allocated funding", fSpent:"Amount spent", fCur:"Currency", fAmt:"Amount unit", fSrc:"Funding source", gap:"Funding gap",
+  fPeriod:"Period", fPTarget:"Period target", fPAch:"Period achieved", fDone:"What was delivered", fReason:"Reason for delay or deviation", fNext:"Next step", addPeriod:"Add period update", noPeriods:"No quarterly updates yet.",
+  fWf:"Approval state", fEv:"Evidence link", fNote:"Notes",
+  st:{not_started:"Not started", ongoing:"Ongoing", delayed:"Delayed", stopped:"Stopped", done:"Completed"},
+  wf:{draft:"Draft", review:"Under review", approved:"Approved"},
+  units:{percent:"Percentage", count:"Number", school:"Schools", classroom:"Classrooms", trainee:"Trainees", teacher:"Teachers", student:"Students", doc:"Document / measure", other:"Other"},
+  amt:{one:"IQD", thousand:"Thousand", million:"Million", billion:"Billion"},
+  sum:{actions:"Actions", approved:"Approved", progress:"Average action delivery", note:"Action delivery is measured separately from results indicators; a high delivery rate does not by itself mean better education outcomes."},
+  save:"Save", cancel:"Close", saving:"Saving…", saved:"Saved.", needTitle:"Enter the action title.", err:"Could not save. Try again.",
+  onlyApproved:"Only approved actions are shown publicly.",
+  impTitle:"Import actions from Excel", impStep1:"1) Choose the file", impStep2:"2) Map the columns", impStep3:"3) Review before importing",
+  impFile:"Template file (xlsx or csv)", impSheet:"Sheet", impHeader:"Header row number", impLoad:"Read file", impCol:"Column in the file", impIgnore:"— ignore —",
+  impRows:n=>`Rows read: ${n}`, impReady:n=>`Ready to import: ${n}`, impSkip:n=>`Will be skipped (no action title): ${n}`,
+  impWarn:"Warnings", impPreview:"Preview of the first five rows", impGo:"Import as drafts", impDone:(a,s)=>`Imported ${a} action(s)${s?`, skipped ${s}`:""}. All are drafts awaiting review and approval.`,
+  impNote:"No imported row is published before it is reviewed and set to “Approved”. Completion percentages in the file are not imported; they are computed from target and achieved.",
+  impXlsxErr:"Could not read the xlsx file (the reader needs an internet connection). Save the sheet as CSV and try again.",
+  impNoFile:"Choose a file first.", impNoRows:"No data rows were found under the chosen header row.",
+  wTarget:n=>`${n} row(s) with a non-numeric target`, wUnit:n=>`${n} row(s) with an unknown unit (stored as “Other”)`, wDup:n=>`${n} duplicate action title(s)`, wNoComp:n=>`${n} row(s) without a component`,
+  fSectorOpts:{ge:"General education", tv:"TVET", he:"Higher education"}},
+ckb:{tab:"کردارە جێبەجێکارییەکان", title:"کردارە جێبەجێکارییەکان", none:"هێشتا هیچ کردارێک تۆمار نەکراوە.", noneAdmin:"هێشتا هیچ کردارێک نییە. کردارێک بە دەستی زیاد بکە یان لە فایلی Excel هاوردە بکە.",
+  add:"کرداری نوێ", imp:"هاوردە لە Excel", exp:"هەناردەی CSV", tpl:"داگرتنی قاڵب", edit:"دەستکاری", del:"سڕینەوە", delAsk:"ئەم کردارە بە تەواوی بسڕدرێتەوە؟",
+  secDef:"پێناسەی کردار", secMeas:"پێوانە و بەستنەوە بە ستراتیژییەت", secFin:"دارایی", secPer:"نوێکردنەوەی دەوری", secWf:"پشتڕاستکردنەوە و پەسەندکردن",
+  fTitle:"کرداری جێبەجێکاری / پڕۆژە", fRef:"کۆدی ئاماژە", fMin:"وەزارەتی ڕاپۆرتکەر", fSector:"کەرت", fComp:"پێکهاتە", fObj:"ئامانج", fProg:"بەرنامە", fSub:"بەرنامەی لاوەکی",
+  fImpl:"لایەنی جێبەجێکار", fBen:"لایەنی سوودمەند", fStart:"بەرواری دەستپێک", fEnd:"بەرواری تەواوبوون",
+  fInd:"پێوەری پێوانە (وەک لە فۆرمەکەدا)", fKpi:"پێوەری ئەنجامی بەستراو", fKpiNone:"بێ بەستنەوە", fUnit:"یەکەی پێوانە", fTarget:"ئامانجی گشتی", fAch:"بەدیهاتووی گشتی", fStatus:"دۆخی کردار",
+  fCost:"تێچووی گشتی", fFund:"دارایی تەرخانکراو", fSpent:"بڕی خەرجکراو", fCur:"دراو", fAmt:"یەکەی بڕ", fSrc:"سەرچاوەی دارایی", gap:"بۆشایی دارایی",
+  fPeriod:"ماوە", fPTarget:"ئامانجی ماوە", fPAch:"بەدیهاتووی ماوە", fDone:"ئەوەی جێبەجێ کرا", fReason:"هۆکاری دواکەوتن یان لادان", fNext:"هەنگاوی داهاتوو", addPeriod:"زیادکردنی نوێکردنەوەی ماوە", noPeriods:"هێشتا نوێکردنەوەی وەرزی نییە.",
+  fWf:"دۆخی پەسەندکردن", fEv:"بەستەری بەڵگە", fNote:"تێبینی",
+  st:{not_started:"دەستی پێنەکردووە", ongoing:"لە جێبەجێکردندا", delayed:"دواکەوتوو", stopped:"ڕاگیراو", done:"تەواوبوو"},
+  wf:{draft:"ڕەشنووس", review:"لە پێداچوونەوەدا", approved:"پەسەندکراو"},
+  units:{percent:"ڕێژەی سەدی", count:"ژمارە", school:"ژمارەی قوتابخانە", classroom:"ژمارەی پۆل", trainee:"ژمارەی ڕاهێنراو", teacher:"ژمارەی مامۆستا", student:"ژمارەی قوتابی", doc:"بەڵگەنامە / کردار", other:"ئەوانی تر"},
+  amt:{one:"دینار", thousand:"هەزار", million:"ملیۆن", billion:"ملیار"},
+  sum:{actions:"ژمارەی کردارەکان", approved:"پەسەندکراو", progress:"ناوەندی جێبەجێکردنی کردارەکان", note:"جێبەجێکردنی کردارەکان جیا لە پێوەرەکانی ئەنجام دەپێورێت؛ بەرزی ئەمە بە پێویستی مانای باشتربوونی ئەوی تر نییە."},
+  save:"پاشەکەوت", cancel:"داخستن", saving:"پاشەکەوتکردن…", saved:"پاشەکەوت کرا.", needTitle:"ناونیشانی کردار بنووسە.", err:"پاشەکەوت نەکرا. دووبارە هەوڵ بدەرەوە.",
+  onlyApproved:"تەنها کردارە پەسەندکراوەکان بۆ گشت دەردەکەون.",
+  impTitle:"هاوردەکردنی کردارەکان لە Excel", impStep1:"١) فایلەکە هەڵبژێرە", impStep2:"٢) هاوتاکردنی ستوونەکان", impStep3:"٣) پێداچوونەوە پێش هاوردە",
+  impFile:"فایلی فۆرم (xlsx یان csv)", impSheet:"پەڕە", impHeader:"ژمارەی ڕیزی سەردێڕ", impLoad:"خوێندنەوەی فایل", impCol:"ستوون لە فایلەکەدا", impIgnore:"— پشتگوێ —",
+  impRows:n=>`ڕیزە خوێندراوەکان: ${n}`, impReady:n=>`ئامادە بۆ هاوردە: ${n}`, impSkip:n=>`پشتگوێ دەخرێن (بێ ناونیشان): ${n}`,
+  impWarn:"ئاگادارییەکان", impPreview:"پێشبینینی پێنج ڕیزی یەکەم", impGo:"هاوردە وەک ڕەشنووس", impDone:(a,s)=>`${a} کردار هاوردە کرا${s?`، ${s} پشتگوێ خرا`:""}. هەموویان ڕەشنووسن و چاوەڕێی پەسەندکردنن.`,
+  impNote:"هیچ ڕیزێکی هاوردەکراو بڵاو ناکرێتەوە پێش پێداچوونەوە و گۆڕینی بۆ «پەسەندکراو». ڕێژەکانی ئەنجامدان لە فایلەکەوە هاوردە ناکرێن.",
+  impXlsxErr:"نەتوانرا فایلی xlsx بخوێنرێتەوە. پەڕەکە وەک CSV پاشەکەوت بکە و دووبارە هەوڵ بدەرەوە.",
+  impNoFile:"سەرەتا فایلێک هەڵبژێرە.", impNoRows:"هیچ ڕیزێکی داتا نەدۆزرایەوە.",
+  wTarget:n=>`${n} ڕیز بە ئامانجی ناژمارەیی`, wUnit:n=>`${n} ڕیز بە یەکەی نەناسراو`, wDup:n=>`${n} ناونیشانی دووبارە`, wNoComp:n=>`${n} ڕیز بێ پێکهاتە`,
+  fSectorOpts:{ge:"پەروەردەی گشتی", tv:"پەروەردە و ڕاهێنانی پیشەیی", he:"خوێندنی باڵا"}}
+};
+const AC = () => AC_I18N[lang] || AC_I18N.ar;
+
+let actions = {}, actionsLoaded = false, actionsDate = "";
+async function loadActions(force){
+  if(actionsLoaded && !force) return;
+  try{
+    const r = await fetch("api/actions", {cache:"no-store", credentials:"same-origin"});
+    if(r.ok && (r.headers.get("content-type")||"").includes("json")){
+      const j = await r.json();
+      if(j && j.items){ actions = j.items; actionsDate = j.exportedAt || ""; }
+    }
+  }catch(e){}
+  actionsLoaded = true; notify();
+}
+const actList = () => Object.values(actions).sort((a,b) => (a.sector||"").localeCompare(b.sector||"") || String(a.title||"").localeCompare(String(b.title||"")));
+function actProgress(a){
+  if(typeof a.targetTotal === "number" && a.targetTotal > 0 && typeof a.achievedTotal === "number") return Math.max(0, Math.min(100, Math.round(a.achievedTotal / a.targetTotal * 100)));
+  const p = (a.periods||[]).filter(x => typeof x.target === "number" && x.target > 0 && typeof x.achieved === "number");
+  if(p.length){ const last = p[p.length-1]; return Math.max(0, Math.min(100, Math.round(last.achieved / last.target * 100))); }
+  return null;
+}
+const actPill = s => `<span class="pill s-${ACT_ST_COLOR[s]||"idle"}">${AC().st[s] || AC().st.not_started}</span>`;
+const wfPill = w => `<span class="wf wf-${w||"draft"}">${AC().wf[w||"draft"]}</span>`;
+function actSummaryHTML(){
+  const all = actList(); const appr = all.filter(a => a.workflow === "approved");
+  const withP = all.map(actProgress).filter(p => p !== null);
+  const avg = withP.length ? Math.round(withP.reduce((x,y)=>x+y,0)/withP.length) : 0;
+  const counts = {}; ACT_ST.forEach(k => counts[k] = all.filter(a => (a.status||"not_started") === k).length);
+  return `<div class="summary act-sum">
+    <div class="sum"><b class="num">${fmt(all.length)}</b><span>${AC().sum.actions}</span></div>
+    <div class="sum"><b class="num">${fmt(appr.length)}</b><span>${AC().sum.approved}</span></div>
+    ${ACT_ST.map(k => `<div class="sum"><b class="num" style="color:var(--${ACT_ST_COLOR[k]})">${counts[k]}</b><span>${AC().st[k]}</span></div>`).join("")}
+    <div class="sum"><b class="num">${avg}%</b><span>${AC().sum.progress}</span><div class="bar"><i style="width:${avg}%"></i></div></div>
+  </div><p class="src">${AC().sum.note}</p>`;
+}
+function actListHTML(canEdit){
+  const rows = actList().filter(a => {
+    if(filt.g !== "all" && filt.g !== "fn" && a.sector !== filt.g) return false;
+    if(filt.q){ const t = `${a.title} ${a.component} ${a.program} ${a.implementer} ${a.indicator}`.toLowerCase(); if(!t.includes(filt.q.toLowerCase())) return false; }
+    return true;
+  });
+  const bar = canEdit ? `<div class="act-bar">
+      <button class="btn primary sm" id="actNew" type="button">${AC().add}</button>
+      <button class="btn sm" id="actImp" type="button">${AC().imp}</button>
+      <button class="btn sm" id="actExp" type="button">${AC().exp}</button>
+      <button class="btn sm" id="actTpl" type="button">${AC().tpl}</button>
+      <span class="src">${AC().onlyApproved}</span>
+    </div>` : "";
+  if(!rows.length) return bar + `<div class="notice">${canEdit ? AC().noneAdmin : AC().none}</div>`;
+  return bar + actSummaryHTML() + `<div class="kpis acts">${rows.map(a => {
+    const p = actProgress(a); const per = (a.periods||[])[ (a.periods||[]).length - 1 ];
+    return `<div class="kpi act">
+      <div class="name"><b>${esc(a.title)}</b><small>${C.groups[a.sector]||""}${a.component?` · ${esc(a.component)}`:""}${a.implementer?` · ${esc(a.implementer)}`:""}</small></div>
+      <div class="cell"><small>${AC().fTarget}</small><div>${a.targetTotal!==null&&a.targetTotal!==undefined?fmt(a.targetTotal):"—"}${a.unit?` <span class="src">${AC().units[a.unit]||""}</span>`:""}</div></div>
+      <div class="cell"><small>${AC().fPeriod}</small><div dir="ltr" style="text-align:start">${per?esc(per.p):"—"}${per&&per.achieved!==null&&per.achieved!==undefined?` &middot; ${fmt(per.achieved)}`:""}</div></div>
+      <div class="cell"><div class="pill-wrap">${actPill(a.status)} ${canEdit?wfPill(a.workflow):""}</div>${p!==null?`<div class="bar"><i style="width:${p}%"></i></div><small class="num">${p}%</small>`:""}</div>
+      <div>${canEdit?`<button class="btn sm" data-act-edit="${esc(a.id)}">${AC().edit}</button>`:""}</div>
+      ${a.kpi && kpiMeta(a.kpi) ? `<div class="note act-kpi">${AC().fKpi}: <b>${kpiMeta(a.kpi).t}</b></div>` : ""}
+    </div>`; }).join("")}</div>`;
+}
+
+/* ---------- editor ---------- */
+const adlg = document.createElement("dialog"); adlg.id = "adlg"; adlg.className = "wide"; document.body.appendChild(adlg);
+let actEditing = null, actPeriods = [];
+const optList = (arr, cur, label) => arr.map(k => `<option value="${k}" ${k===cur?"selected":""}>${label(k)}</option>`).join("");
+function kpiOptions(sector, cur){
+  const out = [`<option value="">${AC().fKpiNone}</option>`];
+  KPI_GROUPS.forEach((gr, gi) => { if(gr.g !== sector) return; gr.ids.forEach((id, j) => {
+    out.push(`<option value="${id}" ${id===cur?"selected":""}>${esc(C.kpis[gi].items[j].t)}</option>`); }); });
+  return out.join("");
+}
+function compOptions(sector, cur){
+  const ps = pillars(sector) || [];
+  const has = ps.some(p => p.t === cur);
+  return [`<option value="">—</option>`, ...ps.map(p => `<option value="${esc(p.t)}" ${p.t===cur?"selected":""}>${esc(p.t)}</option>`),
+    (cur && !has) ? `<option value="${esc(cur)}" selected>${esc(cur)}</option>` : ""].join("");
+}
+function periodsHTML(){
+  const T = AC();
+  if(!actPeriods.length) return `<p class="src">${T.noPeriods}</p>`;
+  return `<div class="per-list">${actPeriods.map((p,i) => `<div class="per">
+    <div><b dir="ltr">${esc(p.p||"")}</b> <span class="src">${p.by?esc(p.by):""}${p.at?` · ${when(p.at)}`:""}</span></div>
+    <div class="num">${T.fPTarget}: ${p.target ?? "—"} · ${T.fPAch}: ${p.achieved ?? "—"}</div>
+    ${p.done?`<div>${esc(p.done)}</div>`:""}${p.reason?`<div class="src">${T.fReason}: ${esc(p.reason)}</div>`:""}${p.next?`<div class="src">${T.fNext}: ${esc(p.next)}</div>`:""}
+    <button class="btn sm" type="button" data-per-del="${i}">${T.del}</button>
+  </div>`).join("")}</div>`;
+}
+function openActEditor(id){
+  const T = AC(); const a = id ? (actions[id] || {}) : {};
+  actEditing = id || null; actPeriods = (a.periods || []).slice();
+  const sector = a.sector || "ge";
+  adlg.setAttribute("dir", C.dir); adlg.setAttribute("lang", C.code);
+  adlg.innerHTML = `<form method="dialog">
+    <div class="dlg-h"><small>${T.title}</small><h3 style="font-size:18px;margin-top:4px">${a.title ? esc(a.title) : T.add}</h3></div>
+    <div class="dlg-b">
+      <h4 class="fs">${T.secDef}</h4>
+      <label for="aTitle">${T.fTitle} *<textarea id="aTitle" rows="2">${esc(a.title||"")}</textarea></label>
+      <div class="row3">
+        <label for="aSector">${T.fSector}<select id="aSector">${optList(SECTORS, sector, k => C.groups[k])}</select></label>
+        <label for="aComp">${T.fComp}<select id="aComp">${compOptions(sector, a.component||"")}</select></label>
+        <label for="aMin">${T.fMin}<input id="aMin" value="${esc(a.ministry||"")}"></label>
+      </div>
+      <div class="row3">
+        <label for="aObj">${T.fObj}<input id="aObj" value="${esc(a.objective||"")}"></label>
+        <label for="aProg">${T.fProg}<input id="aProg" value="${esc(a.program||"")}"></label>
+        <label for="aSub">${T.fSub}<input id="aSub" value="${esc(a.subprogram||"")}"></label>
+      </div>
+      <div class="row3">
+        <label for="aImpl">${T.fImpl}<input id="aImpl" value="${esc(a.implementer||"")}"></label>
+        <label for="aStart">${T.fStart}<input id="aStart" value="${esc(a.start||"")}" placeholder="2024"></label>
+        <label for="aEnd">${T.fEnd}<input id="aEnd" value="${esc(a.end||"")}" placeholder="2026"></label>
+      </div>
+
+      <h4 class="fs">${T.secMeas}</h4>
+      <label for="aInd">${T.fInd}<input id="aInd" value="${esc(a.indicator||"")}"></label>
+      <label for="aKpi">${T.fKpi}<select id="aKpi">${kpiOptions(sector, a.kpi||"")}</select></label>
+      <div class="row3">
+        <label for="aUnit">${T.fUnit}<select id="aUnit">${optList(ACT_UNITS, a.unit||"percent", k => T.units[k])}</select></label>
+        <label for="aTarget">${T.fTarget}<input id="aTarget" type="number" step="any" value="${a.targetTotal ?? ""}"></label>
+        <label for="aAch">${T.fAch}<input id="aAch" type="number" step="any" value="${a.achievedTotal ?? ""}"></label>
+      </div>
+      <label for="aStatus">${T.fStatus}<select id="aStatus">${optList(ACT_ST, a.status||"not_started", k => T.st[k])}</select></label>
+
+      <h4 class="fs">${T.secFin}</h4>
+      <div class="row3">
+        <label for="aCost">${T.fCost}<input id="aCost" type="number" step="any" value="${a.cost ?? ""}"></label>
+        <label for="aFund">${T.fFund}<input id="aFund" type="number" step="any" value="${a.funding ?? ""}"></label>
+        <label for="aSpent">${T.fSpent}<input id="aSpent" type="number" step="any" value="${a.spent ?? ""}"></label>
+      </div>
+      <div class="row3">
+        <label for="aCur">${T.fCur}<select id="aCur"><option value="IQD" ${(a.currency||"IQD")==="IQD"?"selected":""}>IQD</option><option value="USD" ${a.currency==="USD"?"selected":""}>USD</option><option value="EUR" ${a.currency==="EUR"?"selected":""}>EUR</option></select></label>
+        <label for="aAmt">${T.fAmt}<select id="aAmt">${optList(AMT_UNITS, a.amountUnit||"one", k => T.amt[k])}</select></label>
+        <label for="aSrc">${T.fSrc}<input id="aSrc" value="${esc(a.fundingSource||"")}"></label>
+      </div>
+      <p class="src" id="aGap"></p>
+
+      <h4 class="fs">${T.secPer}</h4>
+      <div id="aPerList">${periodsHTML()}</div>
+      <div class="row3">
+        <label for="pP">${T.fPeriod}<input id="pP" placeholder="2025-Q1"></label>
+        <label for="pT">${T.fPTarget}<input id="pT" type="number" step="any"></label>
+        <label for="pA">${T.fPAch}<input id="pA" type="number" step="any"></label>
+      </div>
+      <label for="pD">${T.fDone}<textarea id="pD" rows="2"></textarea></label>
+      <div class="row2">
+        <label for="pR">${T.fReason}<input id="pR"></label>
+        <label for="pN">${T.fNext}<input id="pN"></label>
+      </div>
+      <button class="btn sm" type="button" id="perAdd">${T.addPeriod}</button>
+
+      <h4 class="fs">${T.secWf}</h4>
+      <div class="row2">
+        <label for="aWf">${T.fWf}<select id="aWf">${optList(WF_ST, a.workflow||"draft", k => T.wf[k])}</select></label>
+        <label for="aEv">${T.fEv}<input id="aEv" dir="ltr" value="${esc(a.evidence||"")}" placeholder="https://"></label>
+      </div>
+      <label for="aNote">${T.fNote}<textarea id="aNote" rows="2">${esc(a.note||"")}</textarea></label>
+    </div>
+    <div class="dlg-f">
+      <button class="btn primary" id="aSave" type="button">${T.save}</button>
+      <button class="btn" value="cancel" type="submit">${T.cancel}</button>
+      ${id && session && (session.role === "admin" || session.owner) ? `<button class="btn danger" id="aDel" type="button">${T.del}</button>` : ""}
+      <span class="err" id="aErr" role="alert"></span>
+    </div></form>`;
+  const gap = () => { const c = Number($("#aCost",adlg).value)||0, f = Number($("#aFund",adlg).value)||0;
+    $("#aGap",adlg).textContent = c ? `${AC().gap}: ${fmt(Math.max(0, c - f))} ${AC().amt[$("#aAmt",adlg).value]||""} ${$("#aCur",adlg).value}` : ""; };
+  ["aCost","aFund","aAmt","aCur"].forEach(k => $("#"+k,adlg).addEventListener("input", gap)); gap();
+  $("#aSector",adlg).addEventListener("change", e => {
+    $("#aComp",adlg).innerHTML = compOptions(e.target.value, "");
+    $("#aKpi",adlg).innerHTML = kpiOptions(e.target.value, "");
+  });
+  $("#perAdd",adlg).addEventListener("click", () => {
+    const p = $("#pP",adlg).value.trim(); if(!p) return;
+    actPeriods.push({p, target: $("#pT",adlg).value === "" ? null : Number($("#pT",adlg).value), achieved: $("#pA",adlg).value === "" ? null : Number($("#pA",adlg).value),
+      done: $("#pD",adlg).value.trim(), reason: $("#pR",adlg).value.trim(), next: $("#pN",adlg).value.trim(), at: new Date().toISOString(), by: session ? session.name : ""});
+    ["pP","pT","pA","pD","pR","pN"].forEach(k => $("#"+k,adlg).value = "");
+    $("#aPerList",adlg).innerHTML = periodsHTML();
+  });
+  $("#aPerList",adlg).addEventListener("click", e => {
+    const b = e.target.closest("[data-per-del]"); if(!b) return;
+    actPeriods.splice(Number(b.dataset.perDel), 1); $("#aPerList",adlg).innerHTML = periodsHTML();
+  });
+  $("#aSave",adlg).addEventListener("click", saveAct);
+  const del = $("#aDel",adlg);
+  if(del) del.addEventListener("click", async () => {
+    if(!confirm(AC().delAsk)) return;
+    const r = await api("actions/" + encodeURIComponent(actEditing), {method:"DELETE"});
+    if(r.ok){ delete actions[actEditing]; adlg.close(); notify(); }
+  });
+  if(typeof adlg.showModal === "function") adlg.showModal(); else adlg.setAttribute("open","");
+}
+async function saveAct(){
+  const T = AC(); const v = id => $("#"+id, adlg).value.trim();
+  const num = id => { const x = $("#"+id, adlg).value; return x === "" ? null : Number(x); };
+  if(!v("aTitle")){ $("#aErr",adlg).textContent = T.needTitle; return; }
+  const body = {id: actEditing || "", title: v("aTitle"), sector: v("aSector"), component: v("aComp"), ministry: v("aMin"),
+    objective: v("aObj"), program: v("aProg"), subprogram: v("aSub"), implementer: v("aImpl"), start: v("aStart"), end: v("aEnd"),
+    indicator: v("aInd"), kpi: v("aKpi"), unit: v("aUnit"), targetTotal: num("aTarget"), achievedTotal: num("aAch"), status: v("aStatus"),
+    cost: num("aCost"), funding: num("aFund"), spent: num("aSpent"), currency: v("aCur"), amountUnit: v("aAmt"), fundingSource: v("aSrc"),
+    workflow: v("aWf"), evidence: v("aEv"), note: v("aNote"), periods: actPeriods};
+  $("#aSave",adlg).disabled = true; $("#aErr",adlg).textContent = T.saving;
+  try{
+    const r = await api("actions", {method:"PUT", body});
+    if(r.ok && r.data.action){ actions[r.data.action.id] = r.data.action; actionsDate = r.data.exportedAt || actionsDate; adlg.close(); actEditing = null; notify(); return; }
+    if(r.status === 401){ adlg.close(); session = null; renderLogin(); return; }
+    $("#aErr",adlg).textContent = T.err;
+  }catch(e){ $("#aErr",adlg).textContent = T.err; }
+  $("#aSave",adlg).disabled = false;
+}
+
+/* ---------- CSV export / template ---------- */
+const CSV_FIELDS = ["title","sector","component","objective","program","subprogram","indicator","unit","targetTotal","achievedTotal","start","end","implementer","status","cost","funding","spent","currency","amountUnit","fundingSource","workflow","note"];
+function csvLabel(f){ const T = AC(); return ({title:T.fTitle, sector:T.fSector, component:T.fComp, objective:T.fObj, program:T.fProg, subprogram:T.fSub, indicator:T.fInd, unit:T.fUnit,
+  targetTotal:T.fTarget, achievedTotal:T.fAch, start:T.fStart, end:T.fEnd, implementer:T.fImpl, status:T.fStatus, cost:T.fCost, funding:T.fFund, spent:T.fSpent,
+  currency:T.fCur, amountUnit:T.fAmt, fundingSource:T.fSrc, workflow:T.fWf, note:T.fNote})[f] || f; }
+const csvCell = v => `"${String(v ?? "").replace(/"/g,'""')}"`;
+function download(name, text){
+  const b = new Blob(["﻿" + text], {type:"text/csv;charset=utf-8"});
+  const u = URL.createObjectURL(b); const a = document.createElement("a");
+  a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 1500);
+}
+function exportActions(){
+  const head = CSV_FIELDS.map(csvLabel).concat(["periods"]).map(csvCell).join(",");
+  const body = actList().map(a => CSV_FIELDS.map(f => csvCell(a[f])).concat([csvCell((a.periods||[]).map(p => `${p.p}: ${p.target ?? ""}/${p.achieved ?? ""}`).join(" | "))]).join(",")).join("\n");
+  download("ines-actions.csv", head + "\n" + body);
+}
+function downloadTemplate(){ download("ines-actions-template.csv", CSV_FIELDS.map(csvLabel).map(csvCell).join(",") + "\n"); }
+
+/* ---------- import wizard ---------- */
+const idlg = document.createElement("dialog"); idlg.id = "idlg"; idlg.className = "wide"; document.body.appendChild(idlg);
+const AR_NORM = s => String(s ?? "").replace(/[ً-ْ‏‎]/g,"").replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").replace(/\s+/g," ").trim().toLowerCase();
+const GUESS = {
+  title:["الاجراء التنفيذي / المشروع","الاجراءات التنفيذيه","الاجراء التنفيذي","المشروع","executive action","action"],
+  component:["المكون","المحور","component"],
+  objective:["الهدف","الاولويات","objective"],
+  program:["البرنامج","programme","program"],
+  subprogram:["البرنامج الفرعي","sub-programme"],
+  indicator:["مؤشر القياس","المؤشر","indicator"],
+  unit:["وحده القياس","unit"],
+  targetTotal:["المستهدف الكلي (عدد او نسبه)","المستهدف الكلي","target"],
+  achievedTotal:["المتحقق (من تاريخ 1/1/2023 الى 30/6/2024)","المتحقق","achieved"],
+  start:["تاريخ بدايه التنفيذ","تاريخ البدايه","start"],
+  end:["تاريخ الانجاز","تاريخ النهايه","end"],
+  implementer:["الجهه المنفذه","التشكيل المعني بالتنفيذ","implementer"],
+  beneficiary:["الجهه المستفيده","beneficiary"],
+  status:["موقف الاجراء","الحاله","status"],
+  cost:["الكلفه الكليه (رقما) بالمليون","الكلفه الكليه (رقما)","الكلفه الكليه","cost"],
+  funding:["مبلغ التمويل (رقما) بالمليون","مبلغ التمويل (رقما)","مبلغ التمويل","funding"],
+  spent:["المبلغ المصروف للاجراء لغايه التالريخ الحالي (رقما) بالمليون","المبلغ المصروف","spent"],
+  fundingSource:["مصدر التمويل","funding source"],
+  sector:["القطاع","sector"],
+  note:["الملاحظات","ملاحظات","notes"]
+};
+const ST_GUESS = {"منجز كلي":"done","منجز مستهدفه":"done","منجز مستهفه":"done","حيود":"delayed","متوقف":"stopped","بدون مستهدف":"not_started","قيد التنفيذ":"ongoing","done":"done","ongoing":"ongoing"};
+const UNIT_GUESS = {"نسبه":"percent","نسبه مئويه":"percent","النسبه":"percent","نسبه مويه":"percent","عدد":"count","عدد المدارس":"school","عدد مدارس":"school","عدد المتدربين":"trainee","عدد متدربين":"trainee","عدد دورات":"count","موظف":"count","percent":"percent","count":"count"};
+const SEC_GUESS = {"التعليم العام":"ge","التعليم المهني":"tv","التعليم التقني والمهني":"tv","التعليم العالي":"he","general education":"ge","tvet":"tv","higher education":"he"};
+let impRows = [], impCols = [], impBook = null;
+
+function openImport(){
+  const T = AC();
+  idlg.setAttribute("dir", C.dir); idlg.setAttribute("lang", C.code);
+  idlg.innerHTML = `<form method="dialog">
+    <div class="dlg-h"><small>${T.title}</small><h3 style="font-size:18px;margin-top:4px">${T.impTitle}</h3></div>
+    <div class="dlg-b">
+      <div class="notice">${T.impNote}</div>
+      <h4 class="fs">${T.impStep1}</h4>
+      <div class="row3">
+        <label for="iFile">${T.impFile}<input id="iFile" type="file" accept=".xlsx,.xls,.csv"></label>
+        <label for="iSheet">${T.impSheet}<select id="iSheet"></select></label>
+        <label for="iHead">${T.impHeader}<input id="iHead" type="number" min="1" value="1"></label>
+      </div>
+      <button class="btn sm" type="button" id="iLoad">${T.impLoad}</button>
+      <div id="iStep2" hidden><h4 class="fs">${T.impStep2}</h4><div id="iMap" class="map-grid"></div>
+        <h4 class="fs">${T.impStep3}</h4><div id="iReport"></div></div>
+    </div>
+    <div class="dlg-f">
+      <button class="btn primary" id="iGo" type="button" hidden>${T.impGo}</button>
+      <button class="btn" value="cancel" type="submit">${T.cancel}</button>
+      <span class="err" id="iErr" role="alert"></span>
+    </div></form>`;
+  $("#iFile", idlg).addEventListener("change", pickFile);
+  $("#iLoad", idlg).addEventListener("click", loadSheet);
+  $("#iGo", idlg).addEventListener("click", runImport);
+  if(typeof idlg.showModal === "function") idlg.showModal(); else idlg.setAttribute("open","");
+}
+function loadScript(src){
+  return new Promise((res, rej) => { const s = document.createElement("script"); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
+}
+async function pickFile(){
+  const f = $("#iFile", idlg).files[0]; if(!f) return;
+  const sel = $("#iSheet", idlg); impBook = null; sel.innerHTML = "";
+  if(/\.csv$/i.test(f.name)){ sel.innerHTML = `<option value="csv">CSV</option>`; return; }
+  try{
+    if(!window.XLSX) await loadScript("https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js");
+    const buf = await f.arrayBuffer();
+    impBook = window.XLSX.read(buf, {type:"array"});
+    sel.innerHTML = impBook.SheetNames.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join("");
+  }catch(e){ $("#iErr", idlg).textContent = AC().impXlsxErr; }
+}
+function parseCSV(text){
+  const rows = []; let row = [], cell = "", q = false;
+  for(let i = 0; i < text.length; i++){
+    const c = text[i];
+    if(q){ if(c === '"'){ if(text[i+1] === '"'){ cell += '"'; i++; } else q = false; } else cell += c; }
+    else if(c === '"') q = true;
+    else if(c === ","){ row.push(cell); cell = ""; }
+    else if(c === "\n"){ row.push(cell); rows.push(row); row = []; cell = ""; }
+    else if(c !== "\r") cell += c;
+  }
+  if(cell !== "" || row.length){ row.push(cell); rows.push(row); }
+  return rows;
+}
+async function loadSheet(){
+  const T = AC(); const f = $("#iFile", idlg).files[0];
+  if(!f){ $("#iErr", idlg).textContent = T.impNoFile; return; }
+  const hr = Math.max(1, parseInt($("#iHead", idlg).value, 10) || 1);
+  let grid = [];
+  try{
+    if(impBook){ grid = window.XLSX.utils.sheet_to_json(impBook.Sheets[$("#iSheet", idlg).value], {header:1, raw:true, defval:""}); }
+    else grid = parseCSV(await f.text());
+  }catch(e){ $("#iErr", idlg).textContent = T.impXlsxErr; return; }
+  const header = (grid[hr-1] || []).map(x => String(x ?? "").replace(/\s+/g," ").trim());
+  const body = grid.slice(hr).filter(r => r.some(x => String(x ?? "").trim() !== ""));
+  if(!header.length || !body.length){ $("#iErr", idlg).textContent = T.impNoRows; return; }
+  impCols = header; impRows = body; $("#iErr", idlg).textContent = "";
+  const norm = header.map(AR_NORM);
+  const guessFor = key => {
+    const cands = GUESS[key] || [];
+    for(const c of cands){ const n = AR_NORM(c); let i = norm.indexOf(n); if(i >= 0) return i;
+      i = norm.findIndex(h => h && (h.includes(n) || n.includes(h)) && Math.abs(h.length - n.length) < 12); if(i >= 0) return i; }
+    return -1;
+  };
+  $("#iMap", idlg).innerHTML = Object.keys(GUESS).map(k => {
+    const g = guessFor(k);
+    return `<label>${csvLabel(k) || k}<select data-f="${k}"><option value="-1">${T.impIgnore}</option>${header.map((h,i) => `<option value="${i}" ${i===g?"selected":""}>${esc(h || ("#"+(i+1)))}</option>`).join("")}</select></label>`;
+  }).join("");
+  $("#iStep2", idlg).hidden = false;
+  $("#iMap", idlg).addEventListener("change", report);
+  report();
+}
+function mapped(){
+  const m = {}; idlg.querySelectorAll("#iMap select").forEach(s => { const i = Number(s.value); if(i >= 0) m[s.dataset.f] = i; });
+  const g = (r, f) => m[f] === undefined ? "" : String(r[m[f]] ?? "").trim();
+  const numf = (r, f) => { const v = g(r, f).replace(/[,٬%]/g,""); const n = Number(v); return v !== "" && Number.isFinite(n) ? n : null; };
+  return impRows.map(r => ({
+    title: g(r,"title"), component: g(r,"component"), objective: g(r,"objective"), program: g(r,"program"), subprogram: g(r,"subprogram"),
+    indicator: g(r,"indicator"), unit: UNIT_GUESS[AR_NORM(g(r,"unit"))] || (g(r,"unit") ? "other" : "percent"),
+    targetTotal: numf(r,"targetTotal"), achievedTotal: numf(r,"achievedTotal"),
+    start: g(r,"start"), end: g(r,"end"), implementer: g(r,"implementer"), beneficiary: g(r,"beneficiary"),
+    status: ST_GUESS[AR_NORM(g(r,"status"))] || "not_started",
+    sector: SEC_GUESS[AR_NORM(g(r,"sector"))] || "ge",
+    cost: numf(r,"cost"), funding: numf(r,"funding"), spent: numf(r,"spent"), fundingSource: g(r,"fundingSource"),
+    note: g(r,"note"), workflow: "draft",
+    _rawUnit: g(r,"unit"), _rawTarget: g(r,"targetTotal")
+  }));
+}
+function report(){
+  const T = AC(); const items = mapped();
+  const ready = items.filter(x => x.title);
+  const skip = items.length - ready.length;
+  const badTarget = ready.filter(x => x._rawTarget && x.targetTotal === null).length;
+  const badUnit = ready.filter(x => x.unit === "other" && x._rawUnit).length;
+  const noComp = ready.filter(x => !x.component).length;
+  const seen = new Set(); let dup = 0; ready.forEach(x => { if(seen.has(x.title)) dup++; else seen.add(x.title); });
+  const warns = [badTarget && T.wTarget(badTarget), badUnit && T.wUnit(badUnit), dup && T.wDup(dup), noComp && T.wNoComp(noComp)].filter(Boolean);
+  $("#iReport", idlg).innerHTML = `
+    <div class="summary"><div class="sum"><b class="num">${items.length}</b><span>${T.impRows(items.length).split(":")[0]}</span></div>
+      <div class="sum"><b class="num" style="color:var(--ok)">${ready.length}</b><span>${T.impReady(ready.length).split(":")[0]}</span></div>
+      <div class="sum"><b class="num" style="color:var(--warn)">${skip}</b><span>${T.impSkip(skip).split(":")[0]}</span></div></div>
+    ${warns.length ? `<div class="notice"><b>${T.impWarn}:</b> ${warns.join(" · ")}</div>` : ""}
+    <p class="src">${T.impPreview}</p>
+    <div class="tw"><table class="t"><thead><tr><th>${csvLabel("title")}</th><th>${csvLabel("component")}</th><th>${csvLabel("unit")}</th><th>${csvLabel("targetTotal")}</th><th>${csvLabel("status")}</th></tr></thead>
+    <tbody>${ready.slice(0,5).map(x => `<tr><td>${esc(x.title.slice(0,90))}</td><td>${esc(x.component)}</td><td>${T.units[x.unit]}</td><td class="num">${x.targetTotal ?? "—"}</td><td>${T.st[x.status]}</td></tr>`).join("")}</tbody></table></div>`;
+  $("#iGo", idlg).hidden = !ready.length;
+}
+async function runImport(){
+  const T = AC(); const items = mapped().filter(x => x.title).map(x => { const y = {...x}; delete y._rawUnit; delete y._rawTarget; return y; });
+  $("#iGo", idlg).disabled = true; $("#iErr", idlg).textContent = T.saving;
+  let added = 0, skipped = 0;
+  try{
+    for(let i = 0; i < items.length; i += 300){
+      const r = await api("actions/import", {method:"POST", body:{items: items.slice(i, i+300)}});
+      if(!r.ok){ $("#iErr", idlg).textContent = r.status === 401 ? A().expired : T.err; $("#iGo", idlg).disabled = false; return; }
+      added += r.data.added || 0; skipped += r.data.skipped || 0;
+    }
+    await loadActions(true);
+    $("#iErr", idlg).textContent = "";
+    $("#iReport", idlg).innerHTML = `<div class="notice">${T.impDone(added, skipped)}</div>`;
+    $("#iGo", idlg).hidden = true;
+  }catch(e){ $("#iErr", idlg).textContent = T.err; $("#iGo", idlg).disabled = false; }
+}
+
 
 applyLang();
 route();

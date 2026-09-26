@@ -11,6 +11,10 @@
  *   GET    tracking          public: all tracking records
  *   GET    downloads         public: download counts per document
  *   POST   count/:lang       public: record one download (ar | en)
+ *   GET    actions          public: approved executive actions (all of them when signed in)
+ *   PUT    actions          signed-in: create or update one action
+ *   POST   actions/import   signed-in: bulk import actions as drafts
+ *   DELETE actions/:id      admin: remove one action
  *   PUT    tracking          signed-in: update one record
  *   POST   login             sign in (sets an HttpOnly cookie)
  *   POST   logout            sign out
@@ -26,6 +30,10 @@ const PBKDF2_ITER = 100000;               // Cloudflare Workers maximum
 const ID_RE = /^(ge|tv|he|fn)-(k|p)\d{1,2}$/;
 const USER_RE = /^[a-z0-9._-]{3,32}$/;
 const STATUSES = ["not_started", "on_track", "at_risk", "off_track", "achieved"];
+const ACT_STATUSES = ["not_started", "ongoing", "delayed", "stopped", "done"];
+const WORKFLOW = ["draft", "review", "approved"];
+const ACT_MAX = 2500;                     // ceiling on stored actions
+const ACT_KEY = "actions";
 const enc = new TextEncoder();
 
 const json = (data, status = 200, headers = {}) =>
@@ -87,6 +95,46 @@ async function rebuildAggregate(env){
   return agg;
 }
 
+
+/* ---- executive actions (one KV key holds them all: cheap on the free plan) ---- */
+const numOrNull = v => { if(v === null || v === undefined || v === "") return null; const n = Number(v); return Number.isFinite(n) ? n : null; };
+const pick = (v, list, dflt) => list.includes(v) ? v : dflt;
+
+async function readActions(env){
+  const a = await env.INES_KV.get(ACT_KEY, "json");
+  return (a && typeof a === "object" && a.items) ? a : { exportedAt: "", items: {} };
+}
+function publicActions(store){
+  const items = {};
+  for(const [id, a] of Object.entries(store.items)) if(a.workflow === "approved") items[id] = a;
+  return { exportedAt: store.exportedAt, items };
+}
+function cleanAction(b, prev, session, now){
+  const periods = (Array.isArray(b.periods) ? b.periods : (prev && prev.periods) || []).slice(-24).map(p => ({
+    p: clip(p.p, 24), target: numOrNull(p.target), achieved: numOrNull(p.achieved),
+    done: clip(p.done, 700), reason: clip(p.reason, 500), next: clip(p.next, 500),
+    at: clip(p.at, 40) || now, by: clip(p.by, 80) || session.name
+  }));
+  return {
+    id: (prev && prev.id) || clip(b.id, 40),
+    ref: clip(b.ref, 60), ministry: clip(b.ministry, 60), sector: pick(clip(b.sector, 4), ["ge","tv","he"], "ge"),
+    component: clip(b.component, 160), objective: clip(b.objective, 300), program: clip(b.program, 300), subprogram: clip(b.subprogram, 300),
+    title: clip(b.title, 500), indicator: clip(b.indicator, 400), kpi: clip(b.kpi, 20),
+    unit: clip(b.unit, 40), targetTotal: numOrNull(b.targetTotal), achievedTotal: numOrNull(b.achievedTotal),
+    start: clip(b.start, 20), end: clip(b.end, 20),
+    implementer: clip(b.implementer, 200), beneficiary: clip(b.beneficiary, 200),
+    status: pick(clip(b.status, 20), ACT_STATUSES, "not_started"),
+    workflow: pick(clip(b.workflow, 20), WORKFLOW, "draft"),
+    cost: numOrNull(b.cost), funding: numOrNull(b.funding), spent: numOrNull(b.spent),
+    currency: clip(b.currency, 10) || "IQD", amountUnit: pick(clip(b.amountUnit, 12), ["one","thousand","million","billion"], "one"),
+    fundingSource: clip(b.fundingSource, 200), evidence: clip(b.evidence, 400).slice(0, 400), note: clip(b.note, 1500),
+    periods,
+    createdAt: (prev && prev.createdAt) || now, createdBy: (prev && prev.createdBy) || session.name,
+    by: session.name, user: session.user, updatedAt: now
+  };
+}
+function newId(){ return "a" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
 export async function onRequest(context){
   const { request, env, params } = context;
   const path = Array.isArray(params.path) ? params.path : (params.path ? [params.path] : []);
@@ -105,6 +153,13 @@ export async function onRequest(context){
     if(route === "tracking" && method === "GET"){
       const agg = await env.INES_KV.get("tracking", "json");
       return json(agg || { exportedAt: "", records: {} }, 200, { "Cache-Control": "public, max-age=30" });
+    }
+
+    /* ---- executive actions: public read ---- */
+    if(route === "actions" && method === "GET"){
+      const store = await readActions(env);
+      const s0 = await readSession(request, env);
+      return s0 ? json(store) : json(publicActions(store), 200, { "Cache-Control": "public, max-age=30" });
     }
 
     /* ---- download counters ---- */
@@ -173,6 +228,48 @@ export async function onRequest(context){
       await env.INES_KV.put("rec:" + b.id, JSON.stringify(record));
       const agg = await rebuildAggregate(env);
       return json({ record, exportedAt: agg.exportedAt });
+    }
+
+    /* ---- executive actions: write ---- */
+    if(route === "actions" && method === "PUT"){
+      const b = await request.json().catch(() => ({}));
+      if(!clip(b.title, 500)) return json({ error: "bad_title" }, 400);
+      const store = await readActions(env);
+      const id = clip(b.id, 40) && store.items[clip(b.id, 40)] ? clip(b.id, 40) : newId();
+      if(!store.items[id] && Object.keys(store.items).length >= ACT_MAX) return json({ error: "full" }, 409);
+      const now = new Date().toISOString();
+      const rec = cleanAction({ ...b, id }, store.items[id] || null, session, now);
+      rec.id = id;
+      store.items[id] = rec; store.exportedAt = now;
+      await env.INES_KV.put(ACT_KEY, JSON.stringify(store));
+      return json({ action: rec, exportedAt: store.exportedAt });
+    }
+    if(route === "actions/import" && method === "POST"){
+      const b = await request.json().catch(() => ({}));
+      const items = Array.isArray(b.items) ? b.items : null;
+      if(!items || !items.length) return json({ error: "bad_request" }, 400);
+      const store = await readActions(env);
+      if(b.replace === true) store.items = {};
+      const now = new Date().toISOString();
+      let added = 0, skipped = 0;
+      for(const raw of items){
+        if(Object.keys(store.items).length >= ACT_MAX){ skipped++; continue; }
+        if(!clip(raw.title, 500)){ skipped++; continue; }
+        const id = newId();
+        const rec = cleanAction({ ...raw, id, workflow: "draft" }, null, session, now);
+        rec.id = id; store.items[id] = rec; added++;
+      }
+      store.exportedAt = now;
+      await env.INES_KV.put(ACT_KEY, JSON.stringify(store));
+      return json({ added, skipped, total: Object.keys(store.items).length, exportedAt: now });
+    }
+    if(path[0] === "actions" && path[1] && method === "DELETE"){
+      if(session.role !== "admin" && !session.owner) return json({ error: "forbidden" }, 403);
+      const store = await readActions(env);
+      delete store.items[decodeURIComponent(path[1])];
+      store.exportedAt = new Date().toISOString();
+      await env.INES_KV.put(ACT_KEY, JSON.stringify(store));
+      return json({ ok: true, total: Object.keys(store.items).length });
     }
 
     /* ---- users (admin only) ---- */
