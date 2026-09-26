@@ -482,8 +482,8 @@ html[dir="ltr"] .sign{align-items:flex-end}
 
 /* ---- national emblem above the vision ---- */
 .vision-logo{ display:block; text-align:center; margin-bottom:14px }
-.vision-logo img{ height:118px; width:auto; display:inline-block }
-@media (max-width:640px){ .vision-logo img{ height:86px } }
+.vision-logo img{ height:180px; width:auto; display:inline-block }
+@media (max-width:640px){ .vision-logo img{ height:124px } }
 
 /* ---- partner logo links ---- */
 a.plogo{ position:relative; text-decoration:none; border-radius:14px; transition:transform .15s, opacity .15s }
@@ -492,6 +492,9 @@ a.plogo .lnk{ position:absolute; inset-inline-end:-10px; top:-6px; width:20px; h
 a.plogo .lnk svg{ width:12px; height:12px; stroke:var(--sec-green); stroke-width:4; fill:none }
 a.plogo:hover .lnk, a.plogo:focus-visible .lnk{ display:flex }
 a.plogo:focus-visible{ outline:2px solid var(--sec-green); outline-offset:4px }
+
+a.plogo.wide img,.plogo.wide img{ max-width:190px }
+.plogo img[src$="icsef.png"]{ max-width:200px }
 </style>
 </head>
 <body>
@@ -1000,6 +1003,16 @@ partners:{
       "مجالس الآباء والمعلمين ولجان إدارة المدارس",
       "المشاركة في خطط تحسين المدارس والتغذية المدرسية"
      ]
+    ],
+    [
+     "منتدى المجتمع المدني للتعليم في العراق (ICSEF)",
+     "تنسيق المجتمع المدني",
+     [
+      "آلية قائمة على العضوية تجمع المنظمات غير الحكومية الوطنية والدولية ومنظمات المجتمع المدني العاملة في التعليم والتدريب",
+      "أُنشئ بعد إنهاء عمل مجموعة التعليم (Education Cluster) في 2023 لسد فجوة التنسيق في الانتقال من العمل الإنساني إلى التنمية",
+      "ينسّق جهود أعضائه لدعم تنفيذ الاستراتيجية الوطنية للتربية والتعليم مع وزارتي التربية والتعليم العالي",
+      "ينقل خبرات الميدان والدروس المستفادة إلى مجموعة تنسيق قطاع التعليم عبر رئيسه الذي يشارك في اجتماعاتها فصلياً"
+     ]
     ]
    ]
   }
@@ -1504,7 +1517,8 @@ partners:{
     ]},
     {eyebrow:"Sector partnerships", title:"Private sector and civil society", note:"", cards:[
       ["Private sector and employers","Implementation partner",["Private kindergartens to reach 25% and private primary schools 15%","Sector skills councils to update occupational standards","Centres of excellence, work-based training and university business incubators","A training fund with employer contributions"]],
-      ["Civil society and communities","Participation and accountability",["Represented in the Education Sector Coordination Group","Parent–teacher councils and school management committees","Participation in school improvement plans and school feeding"]]
+      ["Civil society and communities","Participation and accountability",["Represented in the Education Sector Coordination Group","Parent–teacher councils and school management committees","Participation in school improvement plans and school feeding"]],
+      ["Iraq Civil Society Education Forum (ICSEF)", "Civil society coordination", ["A membership-based mechanism for national and international NGOs and civil society organizations active in education and training", "Established after the Education Cluster was phased out in 2023, to fill the coordination gap in the shift from humanitarian response to development", "Coordinates its members' efforts to support INES implementation with the Ministry of Education and MoHESR", "Brings field experience and lessons learned to the Education Sector Coordination Group through its Chair, who attends its meetings quarterly"]]
     ]}
   ],
   mechEyebrow:"Coordination mechanisms", mechTitle:"How partners work together", mechHead:["Mechanism","Lead","Role"],
@@ -1982,7 +1996,8 @@ partners:{
     ]},
     {eyebrow:"هاوبەشییە کەرتییەکان", title:"کەرتی تایبەت و کۆمەڵگەی مەدەنی", note:"", cards:[
       ["کەرتی تایبەت و خاوەنکاران","هاوبەشی جێبەجێکردن",["باخچەی ساوایانی ئەهلی بگاتە 25% و قوتابخانەی سەرەتاییی ئەهلی 15%","ئەنجومەنەکانی کارامەیی کەرتی بۆ نوێکردنەوەی ستانداردە پیشەییەکان","سەنتەری نایابی، ڕاهێنانی لەسەر کار و ئینکوبەیتەری بازرگانیی زانکۆکان","سندوقی ڕاهێنان بە بەشداریی خاوەنکاران"]],
-      ["کۆمەڵگەی مەدەنی و کۆمەڵگە خۆجێییەکان","بەشداری و لێپرسینەوە",["نوێنەرایەتییان لە گرووپی هەماهەنگیی کەرتی پەروەردەدا هەیە","ئەنجومەنی دایکان و باوکان و مامۆستایان و لیژنەکانی بەڕێوەبردنی قوتابخانە","بەشداری لە پلانی باشترکردنی قوتابخانە و خۆراکی قوتابخانە"]]
+      ["کۆمەڵگەی مەدەنی و کۆمەڵگە خۆجێییەکان","بەشداری و لێپرسینەوە",["نوێنەرایەتییان لە گرووپی هەماهەنگیی کەرتی پەروەردەدا هەیە","ئەنجومەنی دایکان و باوکان و مامۆستایان و لیژنەکانی بەڕێوەبردنی قوتابخانە","بەشداری لە پلانی باشترکردنی قوتابخانە و خۆراکی قوتابخانە"]],
+      ["فۆڕەمی کۆمەڵگەی مەدەنی بۆ پەروەردە لە عێراق (ICSEF)", "ڕێکخستنی کۆمەڵگەی مەدەنی", ["میکانیزمێکی لەسەر بنەمای ئەندامێتی بۆ ڕێکخراوە ناحکومییە نیشتمانی و نێودەوڵەتییەکان و ڕێکخراوەکانی کۆمەڵگەی مەدەنی کە لە پەروەردە و ڕاهێناندا چالاکن", "دوای کۆتاییهێنان بە کلستەری پەروەردە لە ٢٠٢٣ دامەزرا، بۆ پڕکردنەوەی بۆشایی هەماهەنگی لە گواستنەوەدا لە کاری مرۆییەوە بۆ گەشەپێدان", "هەوڵی ئەندامەکانی ڕێکدەخات بۆ پشتگیری جێبەجێکردنی ستراتیژیەتی نیشتمانیی پەروەردە لەگەڵ وەزارەتی پەروەردە و وەزارەتی خوێندنی باڵا", "ئەزموونی مەیدانی و وانە وەرگیراوەکان دەگەیەنێتە گرووپی هەماهەنگیی کەرتی پەروەردە لە ڕێگەی سەرۆکەکەیەوە کە هەموو سێ مانگ جارێک بەشداری کۆبوونەوەکانی دەکات"]]
     ]}
   ],
   mechEyebrow:"میکانیزمەکانی هەماهەنگی", mechTitle:"هاوبەشان چۆن پێکەوە کار دەکەن", mechHead:["میکانیزم","سەرکردایەتی","ڕۆڵ"],
@@ -2566,7 +2581,7 @@ function renderTracking(mode){
 const PARTNER_MARKS = [
   [["pmac","monitoring","https://pmo.iq/"],["moe","pillars","https://epedu.gov.iq/"],["mohesr","research","https://mohesr.gov.iq/"],["mop","analysis","https://mop.gov.iq/"],["mof","money","https://mof.gov.iq/"],["molsa","pillars","https://molsa.gov.iq/"],["governorates","infra",""]],
   [["unesco","quality","https://www.unesco.org/en/fieldoffice/baghdad"],["worldbank","money","https://www.worldbank.org/en/country/iraq"],["unicef","access","https://www.unicef.org/iraq/"],["iiep","research","https://www.iiep.unesco.org/"],["eu","context","https://www.eeas.europa.eu/delegations/iraq_en"],["wfp","quality","https://www.wfp.org/countries/iraq"]],
-  [["private","program",""],["civil","thanks",""]]
+  [["private","program",""],["civil","thanks",""],["icsef","thanks",""]]
 ];
 function partnerMark(si, ci, name){
   const m = (PARTNER_MARKS[si] || [])[ci];
