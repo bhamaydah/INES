@@ -14,6 +14,7 @@
  *   GET    actions          public: approved executive actions (all of them when signed in)
  *   PUT    actions          signed-in: create or update one action
  *   POST   actions/import   signed-in: bulk import actions as drafts
+ *   DELETE actions          admin: remove ALL actions (one click reset)
  *   DELETE actions/:id      admin: remove one action
  *   PUT    tracking          signed-in: update one record
  *   POST   login             sign in (sets an HttpOnly cookie)
@@ -262,6 +263,13 @@ export async function onRequest(context){
       store.exportedAt = now;
       await env.INES_KV.put(ACT_KEY, JSON.stringify(store));
       return json({ added, skipped, total: Object.keys(store.items).length, exportedAt: now });
+    }
+    if(route === "actions" && method === "DELETE"){
+      if(session.role !== "admin" && !session.owner) return json({ error: "forbidden" }, 403);
+      const store = await readActions(env);
+      const removed = Object.keys(store.items).length;
+      await env.INES_KV.put(ACT_KEY, JSON.stringify({ exportedAt: new Date().toISOString(), items: {} }));
+      return json({ ok: true, removed });
     }
     if(path[0] === "actions" && path[1] && method === "DELETE"){
       if(session.role !== "admin" && !session.owner) return json({ error: "forbidden" }, 403);
